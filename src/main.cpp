@@ -6,11 +6,13 @@ int main()
 {
 
 	CApplication app = CApplication();
+	if( !app.Start() )
+		return 0;
+
 	EAppStatus state = app.Init();
 
 	while( state != EAppStatus::STOP )
 	{
-		std::cout << "Update Engine..." << std::endl;
 		state = app.Update();
 	}
 

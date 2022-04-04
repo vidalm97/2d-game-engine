@@ -1,9 +1,12 @@
 #include "CApplication.h"
+
 #include "AModule.h"
+#include "CModuleWindow.h"
 
 bool CApplication::Start()
 {
 	// Insert modules in mModules here
+	mModules.push_back(new CModuleWindow( 640, 480 ));
 	return true;
 }
 
@@ -26,6 +29,6 @@ EAppStatus CApplication::Update() const
 EAppStatus CApplication::Clear() const
 {
 	for( const auto& module : mModules )
-		module->Init();
+		module->Clear();
 	return EAppStatus::STOP;
 }
