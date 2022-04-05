@@ -1,12 +1,15 @@
 #include "CApplication.h"
 
 #include "AModule.h"
+#include "CModuleInput.h"
 #include "CModuleWindow.h"
 
 bool CApplication::Start()
 {
 	// Insert modules in mModules here
 	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
+	mModules.push_back( mInput = new CModuleInput() );
+
 	return true;
 }
 
