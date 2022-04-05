@@ -6,7 +6,7 @@
 bool CApplication::Start()
 {
 	// Insert modules in mModules here
-	mModules.push_back(new CModuleWindow( 640, 480 ));
+	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
 	return true;
 }
 
