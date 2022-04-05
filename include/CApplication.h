@@ -6,6 +6,7 @@
 #include <vector>
 
 class AModule;
+class CModuleWindow;
 
 class CApplication
 {
@@ -18,6 +19,8 @@ public:
 	EAppStatus Init() const;
 	EAppStatus Update() const;
 	EAppStatus Clear() const;
+
+	CModuleWindow* mWindow = nullptr;
 
 private:
 	std::vector<AModule*> mModules;
