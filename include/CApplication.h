@@ -6,6 +6,7 @@
 #include <vector>
 
 class AModule;
+class CModuleInput;
 class CModuleWindow;
 
 class CApplication
@@ -20,6 +21,7 @@ public:
 	EAppStatus Update() const;
 	EAppStatus Clear() const;
 
+	CModuleInput* mInput = nullptr;
 	CModuleWindow* mWindow = nullptr;
 
 private:
