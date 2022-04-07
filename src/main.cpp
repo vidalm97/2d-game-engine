@@ -2,21 +2,22 @@
 
 #include <iostream>
 
+CApplication* App;
+
 int main()
 {
-
-	CApplication app = CApplication();
-	if( !app.Start() )
+	App = new CApplication();
+	if( !App->Start() )
 		return 0;
 
-	EAppStatus state = app.Init();
+	EAppStatus state = App->Init();
 
 	while( state != EAppStatus::STOP )
 	{
-		state = app.Update();
+		state = App->Update();
 	}
 
-	app.Clear();
+	App->Clear();
 	std::cout << "Quit Engine..." << std::endl;
 
 	return 0;
