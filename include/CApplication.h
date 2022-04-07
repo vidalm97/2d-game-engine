@@ -28,4 +28,6 @@ private:
 	std::vector<AModule*> mModules;
 };
 
+extern CApplication* App;
+
 #endif
