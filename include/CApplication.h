@@ -7,6 +7,7 @@
 
 class AModule;
 class CModuleInput;
+class CModuleRenderer;
 class CModuleWindow;
 
 class CApplication
@@ -22,10 +23,13 @@ public:
 	EAppStatus Clear() const;
 
 	CModuleInput* mInput = nullptr;
+	CModuleRenderer* mRenderer = nullptr;
 	CModuleWindow* mWindow = nullptr;
 
 private:
 	std::vector<AModule*> mModules;
 };
+
+extern CApplication* App;
 
 #endif
