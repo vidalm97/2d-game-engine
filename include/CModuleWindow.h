@@ -15,9 +15,10 @@ public:
 	bool Update() override;
 	bool Clear() override;
 
+	SDL_Window *mWindow = nullptr;
+
 private:
 	int mWidth, mHeight;
-	SDL_Window *mWindow = nullptr;
 };
 
 #endif
