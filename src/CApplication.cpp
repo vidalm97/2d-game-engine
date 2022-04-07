@@ -2,6 +2,7 @@
 
 #include "AModule.h"
 #include "CModuleInput.h"
+#include "CModuleRenderer.h"
 #include "CModuleWindow.h"
 
 bool CApplication::Start()
@@ -9,6 +10,7 @@ bool CApplication::Start()
 	// Insert modules in mModules here
 	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
 	mModules.push_back( mInput = new CModuleInput() );
+	mModules.push_back( mRenderer = new CModuleRenderer() );
 
 	return true;
 }
