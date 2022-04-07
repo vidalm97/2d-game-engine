@@ -4,7 +4,9 @@ project(2dGameEngine)
 file(GLOB SRC_FILES "src/*.cpp")
 
 set(INC_FILES_DIR "include/")
+set(INC_IMGUI_FILES_DIR "lib/ImGui/include/")
 include_directories(${INC_FILES_DIR})
+include_directories(${INC_IMGUI_FILES_DIR})
 
 find_package(SDL2 REQUIRED)
 include_directories(2dGameEngine ${SDL2_INCLUDE_DIRS})
