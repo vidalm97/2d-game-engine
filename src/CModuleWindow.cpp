@@ -19,14 +19,30 @@ bool CModuleWindow::Init()
 		return false;
 
 	glfwMakeContextCurrent(mWindow);
+	glfwSwapInterval(1);
 
 	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }
 
-bool CModuleWindow::Update()
+bool CModuleWindow::PreUpdate()
 {
+	glfwPollEvents();
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	return true;
+}
+
+bool CModuleWindow::Update()
+{
+	return !glfwWindowShouldClose(mWindow);
+}
+
+bool CModuleWindow::PostUpdate()
+{
+	int display_w, display_h;
+	glfwGetFramebufferSize( mWindow, &display_w, &display_h );
+	glViewport( 0, 0, display_w, display_h );
 
 	glfwSwapBuffers(mWindow);
 
@@ -36,5 +52,6 @@ bool CModuleWindow::Update()
 bool CModuleWindow::Clear()
 {
 	glfwTerminate();
+
 	return true;
 }

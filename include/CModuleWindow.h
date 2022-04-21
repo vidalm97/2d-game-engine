@@ -12,7 +12,11 @@ public:
 	~CModuleWindow() = default;
 
 	bool Init() override;
+
+	bool PreUpdate() override;
 	bool Update() override;
+	bool PostUpdate() override;
+
 	bool Clear() override;
 
 	GLFWwindow *mWindow = nullptr;
