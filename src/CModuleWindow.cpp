@@ -1,30 +1,40 @@
 #include "CModuleWindow.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 CModuleWindow::CModuleWindow( const int aWidth, const int aHeight ) : mWidth(aWidth), mHeight(aHeight)
 {
 }
 
 bool CModuleWindow::Init()
 {
-	SDL_Init(SDL_INIT_VIDEO);
-	mWindow = SDL_CreateWindow( "2D Game Engine", 0, 0, 640, 480, SDL_WINDOW_OPENGL );
-	return mWindow;
+	glfwInit();
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
+	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+
+	mWindow = glfwCreateWindow( mWidth, mHeight, "2d Game Engine", NULL, NULL );
+	if ( mWindow == nullptr )
+		return false;
+
+	glfwMakeContextCurrent(mWindow);
+
+	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }
 
 bool CModuleWindow::Update()
 {
-	SDL_Event event;
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	while( SDL_PollEvent(&event) )
-		if( event.type == SDL_QUIT )
-			return false;
+	glfwSwapBuffers(mWindow);
 
 	return true;
 }
 
 bool CModuleWindow::Clear()
 {
-	SDL_DestroyWindow(mWindow);
-	SDL_Quit();
+	glfwTerminate();
 	return true;
 }

@@ -3,7 +3,7 @@
 
 #include "AModule.h"
 
-#include "SDL.h"
+class GLFWwindow;
 
 class CModuleWindow : public AModule
 {
@@ -15,7 +15,7 @@ public:
 	bool Update() override;
 	bool Clear() override;
 
-	SDL_Window *mWindow = nullptr;
+	GLFWwindow *mWindow = nullptr;
 
 private:
 	int mWidth, mHeight;
