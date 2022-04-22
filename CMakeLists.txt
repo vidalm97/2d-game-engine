@@ -19,6 +19,7 @@ target_include_directories(2dGameEngine
 	PUBLIC lib/ImGui/include
     PUBLIC lib/glfw/include
     PUBLIC lib/glad/include
+    PUBLIC lib/glm
 )
 
 target_link_directories(2dGameEngine
