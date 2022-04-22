@@ -1,6 +1,7 @@
 #include "CApplication.h"
 
 #include "AModule.h"
+#include "CModuleCamera.h"
 #include "CModuleEditor.h"
 #include "CModuleInput.h"
 #include "CModuleRenderer.h"
@@ -10,6 +11,7 @@ bool CApplication::Start()
 {
 	// Insert modules in mModules here
 	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
+	mModules.push_back( mCamera = new CModuleCamera() );
 	mModules.push_back( mEditor = new CModuleEditor() );
 	mModules.push_back( mInput = new CModuleInput() );
 	mModules.push_back( mRenderer = new CModuleRenderer() );
