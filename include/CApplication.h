@@ -6,6 +6,7 @@
 #include <vector>
 
 class AModule;
+class CModuleCamera;
 class CModuleEditor;
 class CModuleInput;
 class CModuleRenderer;
@@ -23,6 +24,7 @@ public:
 	EAppStatus Update() const;
 	EAppStatus Clear() const;
 
+	CModuleCamera* mCamera = nullptr;
 	CModuleEditor* mEditor = nullptr;
 	CModuleInput* mInput = nullptr;
 	CModuleRenderer* mRenderer = nullptr;
