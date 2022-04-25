@@ -15,6 +15,8 @@ public:
 	bool Update() override;
 	bool Clear() override;
 
+	unsigned int mShaderProgram;
+
 private:
 	SDL_Renderer *mRenderer = nullptr;
 };

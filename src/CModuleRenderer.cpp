@@ -15,9 +15,9 @@ bool CModuleRenderer::Init()
 bool CModuleRenderer::Update()
 {
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
+		-0.1f, -0.1f, 0.0f,
+		0.1f, -0.1f, 0.0f,
+		0.0f, 0.1f, 0.0f
 	};
 
 	const char* vertexShaderSource = "#version 330 core\n"
@@ -56,12 +56,12 @@ bool CModuleRenderer::Update()
 	if( !success )
 		return false;
 
-	const auto shaderProgram = glCreateProgram();
-	glAttachShader( shaderProgram, vertexShader );
-	glAttachShader( shaderProgram, fragmentShader );
-	glLinkProgram( shaderProgram );
+	mShaderProgram = glCreateProgram();
+	glAttachShader( mShaderProgram, vertexShader );
+	glAttachShader( mShaderProgram, fragmentShader );
+	glLinkProgram( mShaderProgram );
 
-	glGetProgramiv( shaderProgram, GL_LINK_STATUS, &success );
+	glGetProgramiv( mShaderProgram, GL_LINK_STATUS, &success );
 	if(!success)
 		return false;
 
@@ -78,11 +78,11 @@ bool CModuleRenderer::Update()
 	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 );
 	glEnableVertexAttribArray( 0 );
 
-	glUseProgram(shaderProgram);
+	glUseProgram( mShaderProgram );
 
-	glUniformMatrix4fv( glGetUniformLocation( shaderProgram,"model" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( shaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mModelMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( shaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mModelMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
 
 	glBindVertexArray( VAO );
 	glDrawArrays( GL_TRIANGLES, 0, 3 );

@@ -1,9 +1,14 @@
 #include "CModuleCamera.h"
 
 #include "CApplication.h"
+#include "CModuleRenderer.h"
 #include "CModuleWindow.h"
 
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include "gtc/matrix_transform.hpp"
+
+#include <vector>
 
 CModuleCamera::CModuleCamera( const float aCameraSpeed ) : mCameraSpeed(aCameraSpeed)
 {
@@ -26,6 +31,52 @@ bool CModuleCamera::Init()
 
 bool CModuleCamera::Update()
 {
+	std::vector<float> vertices;
+
+	for( float i = -20.0f; i < 20.0f; i+=0.1f )
+	{
+		vertices.push_back( -i );
+		vertices.push_back( -20.0f );
+		vertices.push_back( 0.0f );
+		vertices.push_back( -i );
+		vertices.push_back( 20.0f );
+		vertices.push_back( 0.0f );
+
+		vertices.push_back( i );
+		vertices.push_back( -20.0f );
+		vertices.push_back( 0.0f );
+		vertices.push_back( i );
+		vertices.push_back( 20.0f );
+		vertices.push_back( 0.0f );
+
+		vertices.push_back( -20.0f );
+		vertices.push_back( -i );
+		vertices.push_back( 0.0f );
+		vertices.push_back( 20.0f );
+		vertices.push_back( -i );
+		vertices.push_back( 0.0f );
+
+		vertices.push_back( -20.0f );
+		vertices.push_back( i );
+		vertices.push_back( 0.0f );
+		vertices.push_back( 20.0f );
+		vertices.push_back( i );
+		vertices.push_back( 0.0f );
+	}
+
+	unsigned int VBO;
+	glGenBuffers( 1, &VBO );
+	unsigned int VAO;
+	glGenVertexArrays( 1, &VAO );
+	glBindVertexArray( VAO );
+	glBindBuffer( GL_ARRAY_BUFFER, VBO );
+	glBufferData( GL_ARRAY_BUFFER, vertices.size()*sizeof(float), &vertices[0], GL_STATIC_DRAW );
+	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 );
+	glEnableVertexAttribArray( 0 );
+
+	glBindVertexArray( VAO );
+	glDrawArrays( GL_LINES, 0, vertices.size()/3 );
+
 	return true;
 }
 
