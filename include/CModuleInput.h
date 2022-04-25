@@ -3,8 +3,6 @@
 
 #include "AModule.h"
 
-#include "SDL.h"
-
 class CModuleInput : public AModule
 {
 public:
@@ -15,8 +13,6 @@ public:
 
 private:
 	bool HandleInput();
-
-	SDL_Event mEvent;
 };
 
 #endif

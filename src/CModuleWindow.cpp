@@ -55,3 +55,13 @@ bool CModuleWindow::Clear()
 
 	return true;
 }
+
+const int CModuleWindow::GetWidth() const
+{
+	return mWidth;
+}
+
+const int CModuleWindow::GetHeight() const
+{
+	return mHeight;
+}
