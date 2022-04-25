@@ -19,6 +19,9 @@ public:
 
 	bool Clear() override;
 
+	const int GetWidth() const;
+	const int GetHeight() const;
+
 	GLFWwindow *mWindow = nullptr;
 
 private:
