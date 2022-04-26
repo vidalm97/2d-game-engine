@@ -5,10 +5,10 @@ class CTexture
 {
 public:
 	CTexture() = default;
-	CTexture( const int aWidth, const int aHeight, const int aChannelsNum );
+	CTexture( const unsigned int aTextureId, const int aWidth, const int aHeight, const int aChannelsNum );
 	~CTexture() = default;
 
-private:
+	unsigned int mTextureId;
 	int mWidth;
 	int mHeight;
 	int mChannelsNum;
