@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16.3)
 project(2dGameEngine)
 
 file(GLOB SRC_FILES "src/*.cpp")
+file(GLOB MODULES_SRC_FILES "src/Modules/*.cpp")
 
 set(INC_FILES_DIR "include/")
 include_directories(${INC_FILES_DIR})
@@ -9,7 +10,7 @@ include_directories(${INC_FILES_DIR})
 find_package(SDL2 REQUIRED)
 include_directories(2dGameEngine ${SDL2_INCLUDE_DIRS})
 
-add_executable(2dGameEngine ${SRC_FILES})
+add_executable(2dGameEngine ${SRC_FILES} ${MODULES_SRC_FILES})
 
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/glad/src)

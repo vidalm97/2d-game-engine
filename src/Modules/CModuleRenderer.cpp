@@ -1,8 +1,8 @@
-#include "CModuleRenderer.h"
+#include "Modules/CModuleRenderer.h"
 
 #include "CApplication.h"
-#include "CModuleCamera.h"
-#include "CModuleWindow.h"
+#include "Modules/CModuleCamera.h"
+#include "Modules/CModuleWindow.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
