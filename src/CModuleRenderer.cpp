@@ -15,9 +15,9 @@ bool CModuleRenderer::Init()
 bool CModuleRenderer::Update()
 {
 	float vertices[] = {
-		-0.1f, -0.1f, 0.0f,
-		0.1f, -0.1f, 0.0f,
-		0.0f, 0.1f, 0.0f
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
 	};
 
 	const char* vertexShaderSource = "#version 330 core\n"
