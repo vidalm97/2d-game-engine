@@ -1,7 +1,7 @@
-#include "CModuleEditor.h"
+#include "Modules/CModuleEditor.h"
 
 #include "CApplication.h"
-#include "CModuleWindow.h"
+#include "Modules/CModuleWindow.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

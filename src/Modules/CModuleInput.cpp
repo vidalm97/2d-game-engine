@@ -1,8 +1,8 @@
-#include "CModuleInput.h"
+#include "Modules/CModuleInput.h"
 
 #include "CApplication.h"
-#include "CModuleCamera.h"
-#include "CModuleWindow.h"
+#include "Modules/CModuleCamera.h"
+#include "Modules/CModuleWindow.h"
 
 #include "GLFW/glfw3.h"
 

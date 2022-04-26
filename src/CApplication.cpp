@@ -1,11 +1,11 @@
 #include "CApplication.h"
 
 #include "AModule.h"
-#include "CModuleCamera.h"
-#include "CModuleEditor.h"
-#include "CModuleInput.h"
-#include "CModuleRenderer.h"
-#include "CModuleWindow.h"
+#include "Modules/CModuleCamera.h"
+#include "Modules/CModuleEditor.h"
+#include "Modules/CModuleInput.h"
+#include "Modules/CModuleRenderer.h"
+#include "Modules/CModuleWindow.h"
 
 bool CApplication::Start()
 {
