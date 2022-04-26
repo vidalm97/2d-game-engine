@@ -14,7 +14,10 @@ bool CModuleWindow::Init()
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-	mWindow = glfwCreateWindow( mWidth, mHeight, "2d Game Engine", NULL, NULL );
+	mWidth = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->width : 1440;
+	mHeight = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : 900;
+
+	mWindow = glfwCreateWindow( mWidth, mHeight, "2d Game Engine", glfwGetPrimaryMonitor(), NULL );
 	if ( mWindow == nullptr )
 		return false;
 

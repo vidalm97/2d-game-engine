@@ -26,6 +26,7 @@ public:
 
 private:
 	int mWidth, mHeight;
+	bool mFullScreen = true;
 };
 
 #endif
