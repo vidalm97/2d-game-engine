@@ -16,6 +16,7 @@ public:
 	bool Clear() override;
 
 	void MoveCamera( const glm::vec3& aDirection );
+	void UpdateProjectionMatrix();
 
 	glm::mat4 mModelMatrix;
 	glm::mat4 mViewMatrix;

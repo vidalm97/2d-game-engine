@@ -1,10 +1,20 @@
 #include "Modules/CModuleWindow.h"
 
+#include "CApplication.h"
+#include "Modules/CModuleCamera.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 CModuleWindow::CModuleWindow( const int aWidth, const int aHeight ) : mWidth(aWidth), mHeight(aHeight)
 {
+}
+
+void OnResize( GLFWwindow* aWindow, int aWidth, int aHeight )
+{
+	glViewport( 0, 0, aWidth, aHeight );
+	App->mWindow->UpdateDimensions();
+	App->mCamera->UpdateProjectionMatrix();
 }
 
 bool CModuleWindow::Init()
@@ -14,8 +24,8 @@ bool CModuleWindow::Init()
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-	mWidth = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->width : 960;
-	mHeight = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : 600;
+	mWidth = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->width : 640;
+	mHeight = mFullScreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : 400;
 
 	mWindow = glfwCreateWindow( mWidth, mHeight, "2d Game Engine", NULL, NULL );
 	if ( mWindow == nullptr )
@@ -23,6 +33,7 @@ bool CModuleWindow::Init()
 
 	glfwMakeContextCurrent(mWindow);
 	glfwSwapInterval(1);
+	glfwSetFramebufferSizeCallback( mWindow, OnResize );
 
 	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }
@@ -43,10 +54,6 @@ bool CModuleWindow::Update()
 
 bool CModuleWindow::PostUpdate()
 {
-	int display_w, display_h;
-	glfwGetFramebufferSize( mWindow, &display_w, &display_h );
-	glViewport( 0, 0, display_w, display_h );
-
 	glfwSwapBuffers(mWindow);
 
 	return true;
@@ -59,12 +66,17 @@ bool CModuleWindow::Clear()
 	return true;
 }
 
-const int CModuleWindow::GetWidth() const
+void CModuleWindow::UpdateDimensions()
+{
+	glfwGetFramebufferSize( mWindow, &mWidth, &mHeight );
+}
+
+const float CModuleWindow::GetWidth() const
 {
 	return mWidth;
 }
 
-const int CModuleWindow::GetHeight() const
+const float CModuleWindow::GetHeight() const
 {
 	return mHeight;
 }

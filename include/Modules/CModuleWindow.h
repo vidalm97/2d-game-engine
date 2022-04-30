@@ -19,8 +19,9 @@ public:
 
 	bool Clear() override;
 
-	const int GetWidth() const;
-	const int GetHeight() const;
+	void UpdateDimensions();
+	const float GetWidth() const;
+	const float GetHeight() const;
 
 	GLFWwindow *mWindow = nullptr;
 
