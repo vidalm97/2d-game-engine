@@ -74,6 +74,8 @@ bool CModuleCamera::Update()
 	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 );
 	glEnableVertexAttribArray( 0 );
 
+	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mShaderProgram, "model" ), 1, GL_FALSE, &mModelMatrix[0][0] );
+
 	glBindVertexArray( VAO );
 	glDrawArrays( GL_LINES, 0, vertices.size()/3 );
 

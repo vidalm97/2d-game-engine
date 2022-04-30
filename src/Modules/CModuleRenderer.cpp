@@ -69,6 +69,9 @@ bool CModuleRenderer::Init()
 	glDeleteShader( vertexShader );
 	glDeleteShader( fragmentShader );
 
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+
 	glGenBuffers( 1, &mVBO );
 	glGenVertexArrays( 1, &mVAO );
 	glBindVertexArray( mVAO );
@@ -81,12 +84,20 @@ bool CModuleRenderer::Init()
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)) );
 	glEnableVertexAttribArray( 1 );
 
-	return GenerateTexture( "../resources/textures/test.jpg" );
+	return GenerateGameObjectWithTexture( "../resources/textures/test.jpg" );
+}
+
+bool CModuleRenderer::PreUpdate()
+{
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+
+	return true;
 }
 
 bool CModuleRenderer::Update()
 {
-	RenderTextures();
+	RenderGameObjects();
 
 	return true;
 }
@@ -96,7 +107,7 @@ bool CModuleRenderer::Clear()
 	return true;
 }
 
-bool CModuleRenderer::GenerateTexture( const std::string& aTextPath )
+bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPath )
 {
 	unsigned int textureId;
 	glGenTextures( 1, &textureId );
@@ -120,21 +131,23 @@ bool CModuleRenderer::GenerateTexture( const std::string& aTextPath )
 	}
 	stbi_image_free( data );
 
-	mTextures.push_back( CTexture( textureId, width, height, nrChannels ) );
+	const std::string name = "New GameObject" + std::to_string(mGameObjects.size());
+	mGameObjects.push_back( CGameObject( new CTexture( textureId, width, height, nrChannels ), name ) );
 
 	return true;
 }
 
-void CModuleRenderer::RenderTextures() const
+void CModuleRenderer::RenderGameObjects() const
 {
-	for( const auto& texture : mTextures )
+	for( const auto& gameObject : mGameObjects )
 	{
-		glBindTexture( GL_TEXTURE_2D, texture.mTextureId );
+		if( !gameObject.mTexture )
+			continue;
+
+		glBindTexture( GL_TEXTURE_2D, gameObject.mTexture->mTextureId );
 		glUseProgram( mShaderProgram );
 
-		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
-		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mModelMatrix[0][0] );
-		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mModelMatrix[0][0] );
 
 		glBindVertexArray( mVAO );
 		glDrawArrays( GL_TRIANGLES, 0, 3 );

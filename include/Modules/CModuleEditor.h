@@ -3,6 +3,8 @@
 
 #include "AModule.h"
 
+class CGameObject;
+
 class CModuleEditor : public AModule
 {
 public:
@@ -12,6 +14,12 @@ public:
 	bool Init() override;
 	bool Update() override;
 	bool Clear() override;
+
+private:
+	void RenderHierarchyPanel();
+	void RenderGameObjectPanel();
+
+	int mSelectedGO = -1;
 };
 
 #endif

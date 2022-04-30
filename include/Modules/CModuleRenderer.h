@@ -2,9 +2,7 @@
 #define CMODULERENDERER__H
 
 #include "AModule.h"
-#include "CTexture.h"
-
-#include "SDL.h"
+#include "CGameObject.h"
 
 #include <vector>
 #include <string>
@@ -18,17 +16,17 @@ public:
 	~CModuleRenderer() = default;
 
 	bool Init() override;
+	bool PreUpdate() override;
 	bool Update() override;
 	bool Clear() override;
 
-	bool GenerateTexture( const std::string& aTextPath );
-	void RenderTextures() const;
+	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
+	void RenderGameObjects() const;
 
 	unsigned int mShaderProgram;
+	std::vector<CGameObject> mGameObjects;
 
 private:
-	SDL_Renderer *mRenderer = nullptr;
-	std::vector<CTexture> mTextures;
 	unsigned int mVBO;
 	unsigned int mVAO;
 };
