@@ -11,9 +11,9 @@
 bool CModuleRenderer::Init()
 {
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.5f, 0.0f, 0.5f, 1.0f
+		-0.2f, -0.2f, 0.0f, 0.0f, 0.0f,
+		0.2f, -0.2f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.2f, 0.0f, 0.5f, 1.0f
 	};
 
 	const char* vertexShaderSource = "#version 330 core\n"
@@ -29,16 +29,6 @@ bool CModuleRenderer::Init()
 		"	TexCoord = vec2( aTexCoord.x, aTexCoord.y );\n"
 		"}\0";
 
-	unsigned int vertexShader;
-	vertexShader = glCreateShader( GL_VERTEX_SHADER );
-	glShaderSource( vertexShader, 1, &vertexShaderSource, NULL );
-	glCompileShader( vertexShader );
-
-	int success;
-	glGetShaderiv( vertexShader, GL_COMPILE_STATUS, &success );
-	if( !success )
-		return false;
-
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"in vec2 TexCoord;\n"
@@ -48,26 +38,24 @@ bool CModuleRenderer::Init()
 		"	FragColor = texture( texture1, TexCoord );\n"
 		"}\0";
 
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-	glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
-	glCompileShader( fragmentShader );
+	const char* vertexGridShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"uniform mat4 view;\n"
+		"uniform mat4 projection;\n"
+		"void main()\n"
+		"{\n"
+		"	gl_Position = projection*view*vec4( aPos.x, aPos.y, aPos.z, 1.0 );\n"
+		"}\0";
 
-	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &success );
-	if( !success )
-		return false;
+	const char* fragmentGridShaderSource = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"	FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );\n"
+		"}\0";
 
-	mShaderProgram = glCreateProgram();
-	glAttachShader( mShaderProgram, vertexShader );
-	glAttachShader( mShaderProgram, fragmentShader );
-	glLinkProgram( mShaderProgram );
-
-	glGetProgramiv( mShaderProgram, GL_LINK_STATUS, &success );
-	if(!success)
-		return false;
-
-	glDeleteShader( vertexShader );
-	glDeleteShader( fragmentShader );
+	CreateShader( mShaderProgram, vertexShaderSource, fragmentShaderSource );
+	CreateShader( mGridShaderProgram, vertexGridShaderSource, fragmentGridShaderSource );
 
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
@@ -89,9 +77,6 @@ bool CModuleRenderer::Init()
 
 bool CModuleRenderer::PreUpdate()
 {
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
-
 	return true;
 }
 
@@ -104,6 +89,42 @@ bool CModuleRenderer::Update()
 
 bool CModuleRenderer::Clear()
 {
+	return true;
+}
+
+bool CModuleRenderer::CreateShader( unsigned int& aShaderProgram, const char* aVertexShaderSource, const char* aFragmentShaderSource ) const
+{
+	unsigned int vertexShader;
+	vertexShader = glCreateShader( GL_VERTEX_SHADER );
+	glShaderSource( vertexShader, 1, &aVertexShaderSource, NULL );
+	glCompileShader( vertexShader );
+
+	int success;
+	glGetShaderiv( vertexShader, GL_COMPILE_STATUS, &success );
+	if( !success )
+		return false;
+
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( fragmentShader, 1, &aFragmentShaderSource, NULL );
+	glCompileShader( fragmentShader );
+
+	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &success );
+	if( !success )
+		return false;
+
+	aShaderProgram = glCreateProgram();
+	glAttachShader( aShaderProgram, vertexShader );
+	glAttachShader( aShaderProgram, fragmentShader );
+	glLinkProgram( aShaderProgram );
+
+	glGetProgramiv( aShaderProgram, GL_LINK_STATUS, &success );
+	if(!success)
+		return false;
+
+	glDeleteShader( vertexShader );
+	glDeleteShader( fragmentShader );
+
 	return true;
 }
 
@@ -139,17 +160,23 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 
 void CModuleRenderer::RenderGameObjects() const
 {
+	glUseProgram( mShaderProgram );
+
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+
 	for( const auto& gameObject : mGameObjects )
 	{
 		if( !gameObject.mTexture )
 			continue;
 
 		glBindTexture( GL_TEXTURE_2D, gameObject.mTexture->mTextureId );
-		glUseProgram( mShaderProgram );
 
 		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mModelMatrix[0][0] );
 
 		glBindVertexArray( mVAO );
 		glDrawArrays( GL_TRIANGLES, 0, 3 );
 	}
+
+	glUseProgram( 0 );
 }
