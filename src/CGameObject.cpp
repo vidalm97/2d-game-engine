@@ -1,22 +1,16 @@
 #include "CGameObject.h"
 
-#include "gtc/matrix_transform.hpp"
+#include "CComponentTransform.h"
 
 CGameObject::CGameObject( CTexture* aTexture, const std::string& aName ) :
 	mTexture( aTexture ),
 	mName( aName )
 {
-	mModelMatrix = glm::mat4(1.0f);
-	mPosition = glm::vec2( 0.0f );
-}
-
-void CGameObject::UpdateModelMatrix()
-{
-	mModelMatrix[3][0] = mPosition.x;
-	mModelMatrix[3][1] = mPosition.y;
+	mComponentTransform = new CComponentTransform();
 }
 
 void CGameObject::Clear()
 {
+	delete mComponentTransform;
 	delete mTexture;
 }

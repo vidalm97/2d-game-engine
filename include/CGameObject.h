@@ -7,6 +7,8 @@
 
 #include <string>
 
+class CComponentTransform;
+
 class CGameObject
 {
 public:
@@ -14,13 +16,11 @@ public:
 	CGameObject( CTexture* aTexture, const std::string& aName );
 	~CGameObject() = default;
 
-	void UpdateModelMatrix();
 	void Clear();
 
-	glm::mat4 mModelMatrix;
-	CTexture* mTexture = nullptr;
 	std::string mName;
-	glm::vec2 mPosition;
+	CTexture* mTexture = nullptr;
+	CComponentTransform* mComponentTransform = nullptr;
 };
 
 #endif
