@@ -34,7 +34,7 @@ bool CModuleCamera::Update()
 {
 	std::vector<float> vertices;
 
-	for( float i = -20.0f; i < 20.0f; i+=0.1f )
+	for( float i = -20.0f; i < 20.0f; i+=0.2f )
 	{
 		vertices.push_back( -i );
 		vertices.push_back( -20.0f );

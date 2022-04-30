@@ -1,6 +1,7 @@
 #include "Modules/CModuleEditor.h"
 
 #include "CApplication.h"
+#include "CComponentTransform.h"
 #include "CGameObject.h"
 #include "Modules/CModuleRenderer.h"
 #include "Modules/CModuleWindow.h"
@@ -89,7 +90,7 @@ void CModuleEditor::RenderHierarchyPanel()
 
 void CModuleEditor::RenderGameObjectPanel()
 {
-	ImGui::Begin( "Game Object" );
+	ImGui::Begin( "Inspector" );
 
 	if( mSelectedGO == -1)
 	{
@@ -97,8 +98,14 @@ void CModuleEditor::RenderGameObjectPanel()
 		return;
 	}
 
-	if( ImGui::DragFloat2("Position", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mPosition.x, 0.5f, 1.0f, 200.0f, "%.0f") )
-		App->mRenderer->mGameObjects[mSelectedGO].UpdateModelMatrix();
+	ImGui::Text( "Transform" );
+
+	if( ImGui::DragFloat2("Position", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mPosition.x, 0.1f, -200.0f, 200.0f, "%0.1f") )
+		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
+	if( ImGui::DragFloat2("Scale", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mScale.x, 0.1f, 0.1f, 200.0f, "%0.1f") )
+		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
+	if( ImGui::DragFloat("Rotation", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
+		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
 
 	ImGui::End();
 }

@@ -1,6 +1,7 @@
 #include "Modules/CModuleRenderer.h"
 
 #include "CApplication.h"
+#include "CComponentTransform.h"
 #include "Modules/CModuleCamera.h"
 #include "Modules/CModuleWindow.h"
 
@@ -172,7 +173,7 @@ void CModuleRenderer::RenderGameObjects() const
 
 		glBindTexture( GL_TEXTURE_2D, gameObject.mTexture->mTextureId );
 
-		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mModelMatrix[0][0] );
+		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
 
 		glBindVertexArray( mVAO );
 		glDrawArrays( GL_TRIANGLES, 0, 3 );
