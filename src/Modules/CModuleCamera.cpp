@@ -9,6 +9,7 @@
 #include "gtc/matrix_transform.hpp"
 
 #include <vector>
+#include<iostream>
 
 CModuleCamera::CModuleCamera( const float aCameraSpeed ) : mCameraSpeed(aCameraSpeed)
 {
@@ -23,7 +24,7 @@ CModuleCamera::CModuleCamera( const float aCameraSpeed ) : mCameraSpeed(aCameraS
 
 bool CModuleCamera::Init()
 {
-	mProjectionMatrix = glm::ortho( -1.0f, +1.0f, -1.0f, +1.0f, 0.1f, 100.0f );
+	UpdateProjectionMatrix();
 	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
 
 	return true;
@@ -89,6 +90,12 @@ bool CModuleCamera::Update()
 bool CModuleCamera::Clear()
 {
 	return true;
+}
+
+void CModuleCamera::UpdateProjectionMatrix()
+{
+	const float ratio = App->mWindow->GetWidth()/App->mWindow->GetHeight();
+	mProjectionMatrix = glm::ortho( -1.0f*ratio, +1.0f*ratio, -1.0f, +1.0f, 0.1f, 100.0f );
 }
 
 void CModuleCamera::MoveCamera( const glm::vec3& aDirection )
