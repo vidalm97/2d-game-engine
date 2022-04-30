@@ -16,6 +16,7 @@ public:
 	bool Clear() override;
 
 private:
+	void SetUpDockingSpace();
 	void RenderHierarchyPanel();
 	void RenderGameObjectPanel();
 
