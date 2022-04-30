@@ -24,9 +24,13 @@ public:
 	void RenderGameObjects() const;
 
 	unsigned int mShaderProgram;
+	unsigned int mGridShaderProgram;
+
 	std::vector<CGameObject> mGameObjects;
 
 private:
+	bool CreateShader( unsigned int& aShaderProgram, const char* aVertexShaderSource, const char* aFragmentShaderSource ) const;
+
 	unsigned int mVBO;
 	unsigned int mVAO;
 };
