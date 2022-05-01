@@ -81,6 +81,7 @@ bool CModuleCamera::Update()
 
 	glBindVertexArray( VAO );
 	glDrawArrays( GL_LINES, 0, vertices.size()/3 );
+	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
 

@@ -11,10 +11,17 @@
 
 bool CModuleRenderer::Init()
 {
+	glEnable( GL_BLEND );
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	float vertices[] = {
-		-0.2f, -0.2f, 0.0f, 0.0f, 0.0f,
-		0.2f, -0.2f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.2f, 0.0f, 0.5f, 1.0f
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	const char* vertexShaderSource = "#version 330 core\n"
@@ -73,7 +80,7 @@ bool CModuleRenderer::Init()
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)) );
 	glEnableVertexAttribArray( 1 );
 
-	return GenerateGameObjectWithTexture( "../resources/textures/test.jpg" );
+	return GenerateGameObjectWithTexture( "../resources/textures/bird.png" );
 }
 
 bool CModuleRenderer::PreUpdate()
@@ -141,10 +148,11 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
 	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
 	unsigned char *data = stbi_load( aTextPath.c_str(), &width, &height, &nrChannels, 0 );
 	if (data)
 	{
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data );
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		glGenerateMipmap( GL_TEXTURE_2D );
 	}
 	else
@@ -176,7 +184,8 @@ void CModuleRenderer::RenderGameObjects() const
 		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
 
 		glBindVertexArray( mVAO );
-		glDrawArrays( GL_TRIANGLES, 0, 3 );
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
+		glBindVertexArray( 0 );
 	}
 
 	glUseProgram( 0 );
