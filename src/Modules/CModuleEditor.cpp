@@ -78,7 +78,7 @@ void CModuleEditor::RenderHierarchyPanel()
 
 	if( ImGui::Button( "Create Game Object" ) )
 	{
-		App->mRenderer->GenerateGameObjectWithTexture("../resources/textures/test.jpg");
+		App->mRenderer->GenerateGameObjectWithTexture("../resources/textures/bird.png");
 	}
 
 	for( int i = 0; i < App->mRenderer->mGameObjects.size(); ++i )
@@ -106,6 +106,19 @@ void CModuleEditor::RenderGameObjectPanel()
 		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
 	if( ImGui::DragFloat("Rotation", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
 		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
+
+	if( App->mRenderer->mGameObjects[mSelectedGO].mTexture )
+	{
+		const auto aspectRatio = App->mRenderer->mGameObjects[mSelectedGO].mTexture->mWidth/App->mRenderer->mGameObjects[mSelectedGO].mTexture->mHeight;
+		auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
+				std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
+		size -= 20.0f;
+
+		ImGui::Text( "Sprite" );
+		ImGui::Text( "Dimensions = %d x %d", App->mRenderer->mGameObjects[mSelectedGO].mTexture->mWidth, App->mRenderer->mGameObjects[mSelectedGO].mTexture->mHeight );
+		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mTexture->mTextureId,
+				ImVec2( size*aspectRatio, size ) , ImVec2(0, 1), ImVec2(1, 0), ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
+	}
 
 	ImGui::End();
 }
