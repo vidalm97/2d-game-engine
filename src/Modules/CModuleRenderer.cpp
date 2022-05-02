@@ -50,16 +50,25 @@ bool CModuleRenderer::Init()
 		"layout (location = 0) in vec3 aPos;\n"
 		"uniform mat4 view;\n"
 		"uniform mat4 projection;\n"
+		"out vec3 color;\n"
 		"void main()\n"
 		"{\n"
+			"color = vec3( 0.4, 0.4, 0.4);\n"
+			"if( mod(aPos.x,1.0) < 0.01 && mod(aPos.y,1.0) < 0.01 )\n"
+			"{\n"
+			"	color.x = 0.3f;\n"
+			"	color.y = 0.3f;\n"
+			"	color.z = 0.3f;\n"
+			"}\n"
 		"	gl_Position = projection*view*vec4( aPos.x, aPos.y, aPos.z, 1.0 );\n"
 		"}\0";
 
 	const char* fragmentGridShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
+		"in vec3 color;\n"
 		"void main()\n"
 		"{\n"
-		"	FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );\n"
+		"	FragColor = vec4( color.x, color.y, color.z, 1.0 );\n"
 		"}\0";
 
 	CreateShader( mShaderProgram, vertexShaderSource, fragmentShaderSource );
