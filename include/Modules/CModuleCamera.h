@@ -8,7 +8,7 @@
 class CModuleCamera : public AModule
 {
 public:
-	CModuleCamera( const float aCameraSpeed );
+	CModuleCamera( const float aMovementSpeed, const float aFocusSpeed );
 	~CModuleCamera() = default;
 
 	bool Init() override;
@@ -16,6 +16,7 @@ public:
 	bool Clear() override;
 
 	void MoveCamera( const glm::vec3& aDirection );
+	void Focus( const float aDistance );
 	void UpdateProjectionMatrix();
 
 	glm::mat4 mModelMatrix;
@@ -27,7 +28,9 @@ private:
 	glm::vec3 mCameraFront;
 	glm::vec3 mCameraUp;
 
-	float mCameraSpeed;
+	float mDistance;
+	float mMovementSpeed;
+	float mFocusSpeed;
 };
 
 #endif

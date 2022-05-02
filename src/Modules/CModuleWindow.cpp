@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <cmath>
+
 CModuleWindow::CModuleWindow( const int aWidth, const int aHeight ) : mWidth(aWidth), mHeight(aHeight)
 {
 }
@@ -15,6 +17,11 @@ void OnResize( GLFWwindow* aWindow, int aWidth, int aHeight )
 	glViewport( 0, 0, aWidth, aHeight );
 	App->mWindow->UpdateDimensions();
 	App->mCamera->UpdateProjectionMatrix();
+}
+
+void OnScroll( GLFWwindow* aWindow, double aXOffset, double aYOffset )
+{
+	App->mCamera->Focus( std::copysign( 1.0f, -aYOffset ) );
 }
 
 bool CModuleWindow::Init()
@@ -33,7 +40,9 @@ bool CModuleWindow::Init()
 
 	glfwMakeContextCurrent(mWindow);
 	glfwSwapInterval(1);
+
 	glfwSetFramebufferSizeCallback( mWindow, OnResize );
+	glfwSetScrollCallback( mWindow, OnScroll );
 
 	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }
