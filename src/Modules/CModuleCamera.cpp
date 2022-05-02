@@ -9,9 +9,8 @@
 #include "gtc/matrix_transform.hpp"
 
 #include <vector>
-#include<iostream>
 
-CModuleCamera::CModuleCamera( const float aCameraSpeed ) : mCameraSpeed(aCameraSpeed)
+CModuleCamera::CModuleCamera( const float aMovementSpeed, const float aFocusSpeed ) : mMovementSpeed(aMovementSpeed), mFocusSpeed(aFocusSpeed)
 {
 	mModelMatrix = glm::mat4(1.0f);
 	mViewMatrix = glm::mat4(1.0f);
@@ -20,6 +19,8 @@ CModuleCamera::CModuleCamera( const float aCameraSpeed ) : mCameraSpeed(aCameraS
 	mCameraPos = glm::vec3( 0.0f, 0.0f, 3.0f );
 	mCameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
 	mCameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
+
+	mDistance = 1.0f;
 }
 
 bool CModuleCamera::Init()
@@ -34,33 +35,19 @@ bool CModuleCamera::Update()
 {
 	std::vector<float> vertices;
 
-	for( float i = -20.0f; i < 20.0f; i+=0.2f )
+	for( float i = -200.0f; i <= 200.0f; i+=0.1f )
 	{
-		vertices.push_back( -i );
-		vertices.push_back( -20.0f );
-		vertices.push_back( 0.0f );
-		vertices.push_back( -i );
-		vertices.push_back( 20.0f );
-		vertices.push_back( 0.0f );
-
 		vertices.push_back( i );
-		vertices.push_back( -20.0f );
+		vertices.push_back( -200.0f );
 		vertices.push_back( 0.0f );
 		vertices.push_back( i );
-		vertices.push_back( 20.0f );
+		vertices.push_back( 200.0f );
 		vertices.push_back( 0.0f );
 
-		vertices.push_back( -20.0f );
-		vertices.push_back( -i );
-		vertices.push_back( 0.0f );
-		vertices.push_back( 20.0f );
-		vertices.push_back( -i );
-		vertices.push_back( 0.0f );
-
-		vertices.push_back( -20.0f );
+		vertices.push_back( -200.0f );
 		vertices.push_back( i );
 		vertices.push_back( 0.0f );
-		vertices.push_back( 20.0f );
+		vertices.push_back( 200.0f );
 		vertices.push_back( i );
 		vertices.push_back( 0.0f );
 	}
@@ -93,14 +80,21 @@ bool CModuleCamera::Clear()
 	return true;
 }
 
+void CModuleCamera::Focus( const float aDistance )
+{
+	if( mDistance+mFocusSpeed*aDistance > 0.0f )
+		mDistance += mFocusSpeed*aDistance;
+	UpdateProjectionMatrix();
+}
+
 void CModuleCamera::UpdateProjectionMatrix()
 {
 	const float ratio = App->mWindow->GetWidth()/App->mWindow->GetHeight();
-	mProjectionMatrix = glm::ortho( -1.0f*ratio, +1.0f*ratio, -1.0f, +1.0f, 0.1f, 100.0f );
+	mProjectionMatrix = glm::ortho( -mDistance*ratio, mDistance*ratio, -mDistance, mDistance, 0.1f, 100.0f );
 }
 
 void CModuleCamera::MoveCamera( const glm::vec3& aDirection )
 {
-	mCameraPos += mCameraSpeed*aDirection;
+	mCameraPos += mMovementSpeed*aDirection;
 	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
 }
