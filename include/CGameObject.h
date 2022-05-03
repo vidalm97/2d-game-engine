@@ -7,19 +7,20 @@
 
 #include <string>
 
+class CComponentRenderer;
 class CComponentTransform;
 
 class CGameObject
 {
 public:
 	CGameObject() = default;
-	CGameObject( CTexture* aTexture, const std::string& aName );
+	CGameObject( CComponentRenderer* aComponentRenderer, const std::string& aName );
 	~CGameObject() = default;
 
 	void Clear();
 
 	std::string mName;
-	CTexture* mTexture = nullptr;
+	CComponentRenderer* mComponentRenderer = nullptr;
 	CComponentTransform* mComponentTransform = nullptr;
 };
 

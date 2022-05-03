@@ -1,9 +1,10 @@
 #include "CGameObject.h"
 
+#include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 
-CGameObject::CGameObject( CTexture* aTexture, const std::string& aName ) :
-	mTexture( aTexture ),
+CGameObject::CGameObject( CComponentRenderer* aComponentRenderer, const std::string& aName ) :
+	mComponentRenderer( aComponentRenderer ),
 	mName( aName )
 {
 	mComponentTransform = new CComponentTransform();
@@ -12,5 +13,5 @@ CGameObject::CGameObject( CTexture* aTexture, const std::string& aName ) :
 void CGameObject::Clear()
 {
 	delete mComponentTransform;
-	delete mTexture;
+	delete mComponentRenderer;
 }
