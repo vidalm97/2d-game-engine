@@ -1,6 +1,7 @@
 #include "Modules/CModuleEditor.h"
 
 #include "CApplication.h"
+#include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "CGameObject.h"
 #include "Modules/CModuleRenderer.h"
@@ -107,16 +108,17 @@ void CModuleEditor::RenderGameObjectPanel()
 	if( ImGui::DragFloat("Rotation", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
 		App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
 
-	if( App->mRenderer->mGameObjects[mSelectedGO].mTexture )
+	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer && App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->HasTexture() )
 	{
-		const auto aspectRatio = App->mRenderer->mGameObjects[mSelectedGO].mTexture->mWidth/App->mRenderer->mGameObjects[mSelectedGO].mTexture->mHeight;
+		const auto aspectRatio = App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureWidth()/App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight();
 		auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
 				std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
 		size -= 20.0f;
 
 		ImGui::Text( "Sprite" );
-		ImGui::Text( "Dimensions = %d x %d", App->mRenderer->mGameObjects[mSelectedGO].mTexture->mWidth, App->mRenderer->mGameObjects[mSelectedGO].mTexture->mHeight );
-		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mTexture->mTextureId,
+		ImGui::Text( "Dimensions = %f x %f", App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureWidth(),
+				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight() );
+		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureId(),
 				ImVec2( size*aspectRatio, size ) , ImVec2(0, 1), ImVec2(1, 0), ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
 	}
 
