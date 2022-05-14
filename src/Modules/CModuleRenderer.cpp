@@ -43,8 +43,8 @@ bool CModuleRenderer::Init()
 		"out vec3 color;\n"
 		"void main()\n"
 		"{\n"
-			"color = vec3( 0.4, 0.4, 0.4);\n"
-			"if( mod(aPos.x,1.0) < 0.01 && mod(aPos.y,1.0) < 0.01 )\n"
+			"color = vec3( 0.55, 0.55, 0.55);\n"
+			"if( mod(aPos.x,2.5) < 0.01 && mod(aPos.y,2.5) < 0.01 )\n"
 			"{\n"
 			"	color.x = 0.3f;\n"
 			"	color.y = 0.3f;\n"
@@ -67,11 +67,16 @@ bool CModuleRenderer::Init()
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
 
-	return GenerateGameObjectWithTexture( "../resources/textures/bird.png" );
+	return InitSceneFramebuffer();
 }
 
 bool CModuleRenderer::PreUpdate()
 {
+	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
+	glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+	glClear( GL_COLOR_BUFFER_BIT );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
 	return true;
 }
 
@@ -84,6 +89,10 @@ bool CModuleRenderer::Update()
 
 bool CModuleRenderer::Clear()
 {
+	glDeleteFramebuffers( 1, &mSceneFramebuffer );
+	glDeleteTextures( 1, &mSceneFramebufferTexture );
+	glDeleteTextures( 1, &mSceneDepthAttachment );
+
 	return true;
 }
 
@@ -133,6 +142,7 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 
 void CModuleRenderer::RenderGameObjects() const
 {
+	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
 	glUseProgram( mShaderProgram );
 
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
@@ -144,8 +154,47 @@ void CModuleRenderer::RenderGameObjects() const
 			continue;
 
 		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+
 		gameObject.mComponentRenderer->RenderTexture();
 	}
 
 	glUseProgram( 0 );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+bool CModuleRenderer::InitSceneFramebuffer()
+{
+	glGenFramebuffers( 1, &mSceneFramebuffer );
+	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
+
+	glGenTextures( 1, &mSceneFramebufferTexture );
+	glBindTexture( GL_TEXTURE_2D, mSceneFramebufferTexture );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, mSceneWidth, mSceneHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+	glBindTexture( GL_TEXTURE_2D, 0 );
+
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mSceneFramebufferTexture, 0 );
+
+	if( glCheckFramebufferStatus( GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE )
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+		return true;
+	}
+
+	return false;
+}
+
+void CModuleRenderer::ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight )
+{
+	glDeleteFramebuffers( 1, &mSceneFramebuffer );
+	glDeleteTextures( 1, &mSceneFramebufferTexture );
+	glDeleteTextures( 1, &mSceneDepthAttachment );
+
+	mSceneWidth = aSceneWidth;
+	mSceneHeight = aSceneHeight;
+
+	InitSceneFramebuffer();
 }
