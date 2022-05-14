@@ -22,14 +22,23 @@ public:
 
 	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
 	void RenderGameObjects() const;
+	void ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight );
 
 	unsigned int mShaderProgram;
 	unsigned int mGridShaderProgram;
 
+	unsigned int mSceneFramebuffer;
+	unsigned int mSceneFramebufferTexture;
+	unsigned int mSceneDepthAttachment;
+
 	std::vector<CGameObject> mGameObjects;
 
 private:
+	bool InitSceneFramebuffer();
 	bool CreateShader( unsigned int& aShaderProgram, const char* aVertexShaderSource, const char* aFragmentShaderSource ) const;
+
+	float mSceneWidth = 1.0f;
+	float mSceneHeight = 1.0f;
 };
 
 #endif

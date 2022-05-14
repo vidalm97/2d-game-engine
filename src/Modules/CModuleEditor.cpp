@@ -7,7 +7,6 @@
 #include "Modules/CModuleRenderer.h"
 #include "Modules/CModuleWindow.h"
 
-#include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -28,16 +27,27 @@ bool CModuleEditor::Init()
 
 bool CModuleEditor::Update()
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
 	SetUpDockingSpace();
 	RenderHierarchyPanel();
 	RenderGameObjectPanel();
+	RenderScenePanel();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	if( mResizedPanel )
+	{
+		mResizedPanel = false;
+		App->mRenderer->ResizeSceneFramebuffer( mScenePanelSize.x, mScenePanelSize.y );
+	}
+	return true;
+}
+
+bool CModuleEditor::PreUpdate()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
 	return true;
 }
@@ -119,8 +129,26 @@ void CModuleEditor::RenderGameObjectPanel()
 		ImGui::Text( "Dimensions = %f x %f", App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureWidth(),
 				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight() );
 		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureId(),
-				ImVec2( size*aspectRatio, size ) , ImVec2(0, 1), ImVec2(1, 0), ImVec4(1.0f, 1.0f, 1.0f, 1.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
+				ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	}
+
+	ImGui::End();
+}
+
+void CModuleEditor::RenderScenePanel()
+{
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
+
+	ImGui::Begin( "Scene", &mShowScene, window_flags );
+
+	auto scenePanelSize = ImGui::GetContentRegionAvail();
+	if( glm::vec2( scenePanelSize.x, scenePanelSize.y ) != mScenePanelSize )
+	{
+		mScenePanelSize = glm::vec2( scenePanelSize.x, scenePanelSize.y );
+		mResizedPanel = true;
+	}
+
+	ImGui::Image( (void*)(intptr_t)App->mRenderer->mSceneFramebufferTexture, scenePanelSize, ImVec2(0, 1), ImVec2(1, 0) );
 
 	ImGui::End();
 }
