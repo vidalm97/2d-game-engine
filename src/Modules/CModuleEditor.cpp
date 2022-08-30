@@ -31,15 +31,23 @@ bool CModuleEditor::Update()
 	RenderHierarchyPanel();
 	RenderGameObjectPanel();
 	RenderScenePanel();
+	RenderGameCameraPanel();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	if( mResizedPanel )
+	if( mResizedScenePanel )
 	{
-		mResizedPanel = false;
+		mResizedScenePanel = false;
 		App->mRenderer->ResizeSceneFramebuffer( mScenePanelSize.x, mScenePanelSize.y );
 	}
+
+	if( mResizedGamePanel )
+	{
+		mResizedGamePanel = false;
+		App->mRenderer->ResizeGameFramebuffer( mGamePanelSize.x, mGamePanelSize.y );
+	}
+
 	return true;
 }
 
@@ -145,10 +153,28 @@ void CModuleEditor::RenderScenePanel()
 	if( glm::vec2( scenePanelSize.x, scenePanelSize.y ) != mScenePanelSize )
 	{
 		mScenePanelSize = glm::vec2( scenePanelSize.x, scenePanelSize.y );
-		mResizedPanel = true;
+		mResizedScenePanel = true;
 	}
 
 	ImGui::Image( (void*)(intptr_t)App->mRenderer->mSceneFramebufferTexture, scenePanelSize, ImVec2(0, 1), ImVec2(1, 0) );
+
+	ImGui::End();
+}
+
+void CModuleEditor::RenderGameCameraPanel()
+{
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
+
+	ImGui::Begin( "Game", &mShowGameCamera, window_flags );
+
+	auto gamePanelSize = ImGui::GetContentRegionAvail();
+	if( glm::vec2( gamePanelSize.x, gamePanelSize.y ) != mGamePanelSize )
+	{
+		mGamePanelSize = glm::vec2( gamePanelSize.x, gamePanelSize.y );
+		mResizedGamePanel = true;
+	}
+
+	ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameFramebufferTexture, gamePanelSize, ImVec2(0, 1), ImVec2(1, 0) );
 
 	ImGui::End();
 }
