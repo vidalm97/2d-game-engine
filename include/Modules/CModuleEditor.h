@@ -23,11 +23,15 @@ private:
 	void RenderHierarchyPanel();
 	void RenderGameObjectPanel();
 	void RenderScenePanel();
+	void RenderGameCameraPanel();
 
 	int mSelectedGO = -1;
-	bool mResizedPanel = false;
+	bool mResizedScenePanel = false;
+	bool mResizedGamePanel = false;
 	bool mShowScene = true;
+	bool mShowGameCamera = true;
 	glm::vec2 mScenePanelSize = glm::vec2( 0, 0 );
+	glm::vec2 mGamePanelSize = glm::vec2( 0, 0 );
 };
 
 #endif
