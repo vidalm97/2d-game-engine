@@ -32,6 +32,7 @@ bool CModuleEditor::Update()
 	RenderGameObjectPanel();
 	RenderScenePanel();
 	RenderGameCameraPanel();
+	RenderGameControlPanel();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -176,5 +177,24 @@ void CModuleEditor::RenderGameCameraPanel()
 
 	ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameFramebufferTexture, gamePanelSize, ImVec2(0, 1), ImVec2(1, 0) );
 
+	ImGui::End();
+}
+
+void CModuleEditor::RenderGameControlPanel()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse;
+
+	ImGui::Begin("##toolbar", nullptr, windowFlags );
+	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x );
+
+	if( ImGui::Button("Play") )
+	{
+		// TO DO: trigger game
+	}
+
+	ImGui::PopStyleVar(3);
 	ImGui::End();
 }
