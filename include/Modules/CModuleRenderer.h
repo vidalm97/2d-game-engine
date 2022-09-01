@@ -4,6 +4,8 @@
 #include "AModule.h"
 #include "CGameObject.h"
 
+#include "glm.hpp"
+
 #include <vector>
 #include <string>
 
@@ -22,6 +24,7 @@ public:
 
 	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
 	void RenderGameObjects() const;
+
 	void ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight );
 	void ResizeGameFramebuffer( const int aGameWidth, const int aGameHeight );
 
@@ -30,17 +33,17 @@ public:
 
 	unsigned int mSceneFramebuffer;
 	unsigned int mSceneFramebufferTexture;
-	unsigned int mSceneDepthAttachment;
 
 	unsigned int mGameFramebuffer;
 	unsigned int mGameFramebufferTexture;
-	unsigned int mGameDepthAttachment;
 
 	std::vector<CGameObject> mGameObjects;
 
 private:
-	bool InitSceneFramebuffer();
-	bool InitGameFramebuffer();
+	bool InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture );
+	void ResizeFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
+	void ClearFrameBuffer( const unsigned int aFramebuffer, const glm::vec4& aColor );
+
 	bool CreateShader( unsigned int& aShaderProgram, const char* aVertexShaderSource, const char* aFragmentShaderSource ) const;
 
 	float mSceneWidth = 1.0f;

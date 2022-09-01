@@ -24,21 +24,14 @@ bool CModuleRenderer::Init()
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
 
-	InitGameFramebuffer();
-	return InitSceneFramebuffer();
+	InitFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture );
+	return InitFramebuffer( mGameFramebuffer, mGameFramebufferTexture );
 }
 
 bool CModuleRenderer::PreUpdate()
 {
-	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
-	glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
-	glClear( GL_COLOR_BUFFER_BIT );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-
-	glBindFramebuffer( GL_FRAMEBUFFER, mGameFramebuffer );
-	glClearColor( 0.0f, 0.6f, 1.0f, 1.0f );
-	glClear( GL_COLOR_BUFFER_BIT );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	ClearFrameBuffer( mSceneFramebuffer, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f) );
+	ClearFrameBuffer( mGameFramebuffer, glm::vec4( 0.0f, 0.3f, 0.6f, 1.0f ) );
 
 	return true;
 }
@@ -54,11 +47,9 @@ bool CModuleRenderer::Clear()
 {
 	glDeleteFramebuffers( 1, &mSceneFramebuffer );
 	glDeleteTextures( 1, &mSceneFramebufferTexture );
-	glDeleteTextures( 1, &mSceneDepthAttachment );
 
 	glDeleteFramebuffers( 1, &mGameFramebuffer );
 	glDeleteTextures( 1, &mGameFramebufferTexture );
-	glDeleteTextures( 1, &mGameDepthAttachment );
 
 	return true;
 }
@@ -129,13 +120,13 @@ void CModuleRenderer::RenderGameObjects() const
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-bool CModuleRenderer::InitSceneFramebuffer()
+bool CModuleRenderer::InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture )
 {
-	glGenFramebuffers( 1, &mSceneFramebuffer );
-	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
+	glGenFramebuffers( 1, &aFramebuffer );
+	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
 
-	glGenTextures( 1, &mSceneFramebufferTexture );
-	glBindTexture( GL_TEXTURE_2D, mSceneFramebufferTexture );
+	glGenTextures( 1, &aFramebufferTexture );
+	glBindTexture( GL_TEXTURE_2D, aFramebufferTexture );
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, mSceneWidth, mSceneHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -143,32 +134,7 @@ bool CModuleRenderer::InitSceneFramebuffer()
 
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mSceneFramebufferTexture, 0 );
-
-	if( glCheckFramebufferStatus( GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE )
-	{
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-		return true;
-	}
-
-	return false;
-}
-
-bool CModuleRenderer::InitGameFramebuffer()
-{
-	glGenFramebuffers( 1, &mGameFramebuffer );
-	glBindFramebuffer( GL_FRAMEBUFFER, mGameFramebuffer );
-
-	glGenTextures( 1, &mGameFramebufferTexture );
-	glBindTexture( GL_TEXTURE_2D, mGameFramebufferTexture );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, mGameWidth, mGameHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
-
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-	glBindTexture( GL_TEXTURE_2D, 0 );
-
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mGameFramebufferTexture, 0 );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, aFramebufferTexture, 0 );
 
 	if( glCheckFramebufferStatus( GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE )
 	{
@@ -181,24 +147,32 @@ bool CModuleRenderer::InitGameFramebuffer()
 
 void CModuleRenderer::ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight )
 {
-	glDeleteFramebuffers( 1, &mSceneFramebuffer );
-	glDeleteTextures( 1, &mSceneFramebufferTexture );
-	glDeleteTextures( 1, &mSceneDepthAttachment );
-
 	mSceneWidth = aSceneWidth;
 	mSceneHeight = aSceneHeight;
 
-	InitSceneFramebuffer();
+	ResizeFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture, aSceneWidth, aSceneHeight );
 }
 
 void CModuleRenderer::ResizeGameFramebuffer( const int aGameWidth, const int aGameHeight )
 {
-	glDeleteFramebuffers( 1, &mGameFramebuffer );
-	glDeleteTextures( 1, &mGameFramebufferTexture );
-	glDeleteTextures( 1, &mGameDepthAttachment );
-
 	mGameWidth = aGameWidth;
 	mGameHeight = aGameHeight;
 
-	InitGameFramebuffer();
+	ResizeFramebuffer( mGameFramebuffer, mGameFramebufferTexture, aGameWidth, aGameHeight );
+}
+
+void CModuleRenderer::ResizeFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight )
+{
+	glDeleteFramebuffers( 1, &aFramebuffer );
+	glDeleteTextures( 1, &aFramebufferTexture );
+
+	InitFramebuffer( aFramebuffer, aFramebufferTexture );
+}
+
+void CModuleRenderer::ClearFrameBuffer( const unsigned int aFrameBuffer, const glm::vec4& aColor )
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, aFrameBuffer );
+	glClearColor( aColor.x, aColor.y, aColor.z, aColor. w );
+	glClear( GL_COLOR_BUFFER_BIT );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
