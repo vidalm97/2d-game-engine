@@ -10,6 +10,7 @@ class CModuleCamera;
 class CModuleEditor;
 class CModuleInput;
 class CModuleRenderer;
+class CModuleResourceManager;
 class CModuleWindow;
 
 class CApplication
@@ -28,6 +29,7 @@ public:
 	CModuleEditor* mEditor = nullptr;
 	CModuleInput* mInput = nullptr;
 	CModuleRenderer* mRenderer = nullptr;
+	CModuleResourceManager* mResourceManager = nullptr;
 	CModuleWindow* mWindow = nullptr;
 
 private:
