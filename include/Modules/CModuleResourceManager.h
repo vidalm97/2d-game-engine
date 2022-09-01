@@ -5,6 +5,8 @@
 
 #include <string>
 
+class CTexture;
+
 class CModuleResourceManager : public AModule
 {
 public:
@@ -14,6 +16,7 @@ public:
 	bool Update() override;
 
 	const std::string LoadFile( const std::string& aFilePath );
+	CTexture* CreateTexture( const std::string& aTexturePath );
 
 private:
 	std::string mResourcesPath;

@@ -98,7 +98,7 @@ void CModuleEditor::RenderHierarchyPanel()
 
 	if( ImGui::Button( "Create Game Object" ) )
 	{
-		App->mRenderer->GenerateGameObjectWithTexture("../resources/textures/bird.png");
+		App->mRenderer->GenerateGameObjectWithTexture("textures/bird.png");
 	}
 
 	for( int i = 0; i < App->mRenderer->mGameObjects.size(); ++i )
