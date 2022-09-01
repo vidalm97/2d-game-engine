@@ -35,8 +35,8 @@ bool CModuleEditor::Update()
 	SetUpDockingSpace();
 	RenderHierarchyPanel();
 	RenderGameObjectPanel();
-	RenderScenePanel();
 	RenderGameCameraPanel();
+	RenderScenePanel();
 	RenderGameControlPanel();
 
 	ImGui::Render();
