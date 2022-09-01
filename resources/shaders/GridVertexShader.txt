@@ -1,0 +1,16 @@
+#version 330 core
+layout (location = 0) in vec3 aPos;
+uniform mat4 view;
+uniform mat4 projection;
+out vec3 color;
+void main()
+{
+	color = vec3( 0.55, 0.55, 0.55);
+	if( mod(aPos.x,2.5) < 0.01 && mod(aPos.y,2.5) < 0.01 )
+	{
+	   color.x = 0.3f;
+	   color.y = 0.3f;
+	   color.z = 0.3f;
+	}
+	gl_Position = projection*view*vec4( aPos.x, aPos.y, aPos.z, 1.0 );
+}

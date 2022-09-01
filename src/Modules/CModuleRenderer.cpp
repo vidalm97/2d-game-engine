@@ -4,8 +4,10 @@
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "Modules/CModuleCamera.h"
+#include "Modules/CModuleResourceManager.h"
 #include "Modules/CModuleWindow.h"
 
+#include <iostream>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -14,55 +16,10 @@ bool CModuleRenderer::Init()
 	glEnable( GL_BLEND );
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"layout (location = 1) in vec2 aTexCoord;\n"
-		"out vec2 TexCoord;\n"
-		"uniform mat4 model;\n"
-		"uniform mat4 view;\n"
-		"uniform mat4 projection;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = projection*view*model*vec4( aPos.x, aPos.y, aPos.z, 1.0 );\n"
-		"	TexCoord = vec2( aTexCoord.x, aTexCoord.y );\n"
-		"}\0";
-
-	const char* fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"in vec2 TexCoord;\n"
-		"uniform sampler2D texture1;\n"
-		"void main()\n"
-		"{\n"
-		"	FragColor = texture( texture1, TexCoord );\n"
-		"}\0";
-
-	const char* vertexGridShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"uniform mat4 view;\n"
-		"uniform mat4 projection;\n"
-		"out vec3 color;\n"
-		"void main()\n"
-		"{\n"
-			"color = vec3( 0.55, 0.55, 0.55);\n"
-			"if( mod(aPos.x,2.5) < 0.01 && mod(aPos.y,2.5) < 0.01 )\n"
-			"{\n"
-			"	color.x = 0.3f;\n"
-			"	color.y = 0.3f;\n"
-			"	color.z = 0.3f;\n"
-			"}\n"
-		"	gl_Position = projection*view*vec4( aPos.x, aPos.y, aPos.z, 1.0 );\n"
-		"}\0";
-
-	const char* fragmentGridShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"in vec3 color;\n"
-		"void main()\n"
-		"{\n"
-		"	FragColor = vec4( color.x, color.y, color.z, 1.0 );\n"
-		"}\0";
-
-	CreateShader( mShaderProgram, vertexShaderSource, fragmentShaderSource );
-	CreateShader( mGridShaderProgram, vertexGridShaderSource, fragmentGridShaderSource );
+	CreateShader( mShaderProgram, App->mResourceManager->LoadFile( "shaders/VertexShader.txt" ).c_str(),
+			App->mResourceManager->LoadFile( "shaders/FragmentShader.txt" ).c_str() );
+	CreateShader( mGridShaderProgram, App->mResourceManager->LoadFile( "shaders/GridVertexShader.txt" ).c_str(),
+			App->mResourceManager->LoadFile( "shaders/GridFragmentShader.txt" ).c_str() );
 
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
