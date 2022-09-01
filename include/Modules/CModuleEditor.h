@@ -6,6 +6,7 @@
 #include "glm.hpp"
 
 class CGameObject;
+class CTexture;
 
 class CModuleEditor : public AModule
 {
@@ -33,6 +34,8 @@ private:
 	bool mShowGameCamera = true;
 	glm::vec2 mScenePanelSize = glm::vec2( 0, 0 );
 	glm::vec2 mGamePanelSize = glm::vec2( 0, 0 );
+
+	CTexture* mPlayIcon = nullptr;
 };
 
 #endif

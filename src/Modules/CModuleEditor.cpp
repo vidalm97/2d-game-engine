@@ -4,7 +4,10 @@
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "CGameObject.h"
+#include "CTexture.h"
+
 #include "Modules/CModuleRenderer.h"
+#include "Modules/CModuleResourceManager.h"
 #include "Modules/CModuleWindow.h"
 
 #include "imgui_impl_glfw.h"
@@ -21,6 +24,8 @@ bool CModuleEditor::Init()
 
 	ImGui_ImplGlfw_InitForOpenGL( App->mWindow->mWindow, true );
 	ImGui_ImplOpenGL3_Init( "#version 130" );
+
+	mPlayIcon = App->mResourceManager->CreateTexture( "textures/play.png" );
 
 	return true;
 }
@@ -66,6 +71,8 @@ bool CModuleEditor::Clear()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
+	delete mPlayIcon;
 
 	return true;
 }
@@ -187,14 +194,26 @@ void CModuleEditor::RenderGameControlPanel()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse;
 
+
+	ImGui::PushStyleColor( ImGuiCol_WindowBg,ImVec4(0.4f, 0.6f, 0.6f, 1.f));
 	ImGui::Begin("##toolbar", nullptr, windowFlags );
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x );
 
-	if( ImGui::Button("Play") )
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 1.f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.f));
+
+	const auto aspectRatio = mPlayIcon->GetWidth()/mPlayIcon->GetHeight();
+	auto size = aspectRatio > 1.0f ? std::min( ImGui::GetContentRegionAvail().x/aspectRatio, ImGui::GetContentRegionAvail().y ) :
+				std::min( ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y/aspectRatio );
+	size -= 5.0f;
+
+	if( ImGui::ImageButton( (void*)(intptr_t)mPlayIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
 	{
 		// TO DO: trigger game
 	}
 
+	ImGui::PopStyleColor(4);
 	ImGui::PopStyleVar(3);
 	ImGui::End();
 }
