@@ -21,8 +21,8 @@ bool CModuleRenderer::Init()
 	CreateShader( mGridShaderProgram, App->mResourceManager->LoadFile( "shaders/GridVertexShader.txt" ).c_str(),
 			App->mResourceManager->LoadFile( "shaders/GridFragmentShader.txt" ).c_str() );
 
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mProjectionMatrix[0][0] );
 
 	InitFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture );
 	return InitFramebuffer( mGameFramebuffer, mGameFramebufferTexture );
@@ -30,7 +30,7 @@ bool CModuleRenderer::Init()
 
 bool CModuleRenderer::PreUpdate()
 {
-	ClearFrameBuffer( mSceneFramebuffer, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f) );
+	ClearFrameBuffer( mSceneFramebuffer, glm::vec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
 	ClearFrameBuffer( mGameFramebuffer, glm::vec4( 0.0f, 0.3f, 0.6f, 1.0f ) );
 
 	return true;
@@ -38,7 +38,8 @@ bool CModuleRenderer::PreUpdate()
 
 bool CModuleRenderer::Update()
 {
-	RenderGameObjects();
+	RenderGameObjects( mSceneFramebuffer, App->mCamera->mSceneCamera );
+	RenderGameObjects( mGameFramebuffer, App->mCamera->mGameCamera );
 
 	return true;
 }
@@ -98,13 +99,13 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 	return true;
 }
 
-void CModuleRenderer::RenderGameObjects() const
+void CModuleRenderer::RenderGameObjects( const int& aFramebuffer, CCamera* aCamera ) const
 {
-	glBindFramebuffer( GL_FRAMEBUFFER, mGameFramebuffer );
+	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
 	glUseProgram( mShaderProgram );
 
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &aCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->mProjectionMatrix[0][0] );
 
 	for( const auto& gameObject : mGameObjects )
 	{

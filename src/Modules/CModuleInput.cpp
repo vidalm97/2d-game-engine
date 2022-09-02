@@ -12,16 +12,16 @@ bool CModuleInput::HandleInput()
 		return false;
 
 	if ( glfwGetKey( App->mWindow->mWindow, GLFW_KEY_D ) == GLFW_PRESS )
-		App->mCamera->MoveCamera( glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		App->mCamera->mSceneCamera->MoveCamera( glm::vec3( 1.0f, 0.0f, 0.0f ) );
 
 	if ( glfwGetKey( App->mWindow->mWindow, GLFW_KEY_A ) == GLFW_PRESS )
-		App->mCamera->MoveCamera( glm::vec3( -1.0f, 0.0f, 0.0f ) );
+		App->mCamera->mSceneCamera->MoveCamera( glm::vec3( -1.0f, 0.0f, 0.0f ) );
 
 	if ( glfwGetKey( App->mWindow->mWindow, GLFW_KEY_W ) == GLFW_PRESS )
-		App->mCamera->MoveCamera( glm::vec3( 0.0f, 1.0f, 0.0f ) );
+		App->mCamera->mSceneCamera->MoveCamera( glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
 	if ( glfwGetKey( App->mWindow->mWindow, GLFW_KEY_S ) == GLFW_PRESS )
-		App->mCamera->MoveCamera( glm::vec3( 0.0f, -1.0f, 0.0f ) );
+		App->mCamera->mSceneCamera->MoveCamera( glm::vec3( 0.0f, -1.0f, 0.0f ) );
 
 	return true;
 }
