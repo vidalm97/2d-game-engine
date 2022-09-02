@@ -12,7 +12,7 @@ bool CApplication::Start()
 {
 	// Insert modules in mModules here
 	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
-	mModules.push_back( mCamera = new CModuleCamera( 0.005f, 0.01f ) );
+	mModules.push_back( mCamera = new CModuleCamera() );
 	mModules.push_back( mInput = new CModuleInput() );
 	mModules.push_back( mRenderer = new CModuleRenderer() );
 	mModules.push_back( mResourceManager = new CModuleResourceManager( "../resources" ) );

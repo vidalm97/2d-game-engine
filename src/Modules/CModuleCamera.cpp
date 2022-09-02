@@ -1,6 +1,7 @@
 #include "Modules/CModuleCamera.h"
 
 #include "CApplication.h"
+#include "CCamera.h"
 #include "Modules/CModuleRenderer.h"
 #include "Modules/CModuleWindow.h"
 
@@ -10,24 +11,14 @@
 
 #include <vector>
 
-CModuleCamera::CModuleCamera( const float aMovementSpeed, const float aFocusSpeed ) : mMovementSpeed(aMovementSpeed), mFocusSpeed(aFocusSpeed)
+CModuleCamera::CModuleCamera()
 {
-	mModelMatrix = glm::mat4(1.0f);
-	mViewMatrix = glm::mat4(1.0f);
-	mProjectionMatrix = glm::mat4(1.0f);
-
-	mCameraPos = glm::vec3( 0.0f, 0.0f, 3.0f );
-	mCameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
-	mCameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
-
-	mDistance = 1.0f;
+	mSceneCamera = new CCamera( 0.01f, 0.02f );
+	mGameCamera = new CCamera( 0.01f, 0.02f );
 }
 
 bool CModuleCamera::Init()
 {
-	UpdateProjectionMatrix();
-	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
-
 	return true;
 }
 
@@ -65,8 +56,8 @@ bool CModuleCamera::Update()
 	glBindFramebuffer( GL_FRAMEBUFFER, App->mRenderer->mSceneFramebuffer );
 
 	glUseProgram( App->mRenderer->mGridShaderProgram );
-	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "view" ), 1, GL_FALSE, &mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "projection" ), 1, GL_FALSE, &mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "view" ), 1, GL_FALSE, &mSceneCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "projection" ), 1, GL_FALSE, &mSceneCamera->mProjectionMatrix[0][0] );
 
 	glBindVertexArray( VAO );
 	glDrawArrays( GL_LINES, 0, vertices.size()/3 );
@@ -80,24 +71,9 @@ bool CModuleCamera::Update()
 
 bool CModuleCamera::Clear()
 {
+	delete mSceneCamera;
+	delete mGameCamera;
+
 	return true;
 }
 
-void CModuleCamera::Focus( const float aDistance )
-{
-	if( mDistance+mFocusSpeed*aDistance > 0.0f )
-		mDistance += mFocusSpeed*aDistance;
-	UpdateProjectionMatrix();
-}
-
-void CModuleCamera::UpdateProjectionMatrix()
-{
-	const float ratio = App->mWindow->GetWidth()/App->mWindow->GetHeight();
-	mProjectionMatrix = glm::ortho( -mDistance*ratio, mDistance*ratio, -mDistance, mDistance, 0.1f, 100.0f );
-}
-
-void CModuleCamera::MoveCamera( const glm::vec3& aDirection )
-{
-	mCameraPos += mMovementSpeed*aDirection;
-	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
-}

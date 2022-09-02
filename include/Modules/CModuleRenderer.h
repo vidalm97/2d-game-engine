@@ -10,6 +10,7 @@
 #include <string>
 
 class CTexture;
+class CCamera;
 
 class CModuleRenderer : public AModule
 {
@@ -23,7 +24,7 @@ public:
 	bool Clear() override;
 
 	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
-	void RenderGameObjects() const;
+	void RenderGameObjects( const int& aFramebuffer, CCamera* aCamera ) const;
 
 	void ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight );
 	void ResizeGameFramebuffer( const int aGameWidth, const int aGameHeight );

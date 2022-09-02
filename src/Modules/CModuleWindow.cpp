@@ -16,12 +16,13 @@ void OnResize( GLFWwindow* aWindow, int aWidth, int aHeight )
 {
 	glViewport( 0, 0, aWidth, aHeight );
 	App->mWindow->UpdateDimensions();
-	App->mCamera->UpdateProjectionMatrix();
+	App->mCamera->mGameCamera->UpdateProjectionMatrix();
+	App->mCamera->mSceneCamera->UpdateProjectionMatrix();
 }
 
 void OnScroll( GLFWwindow* aWindow, double aXOffset, double aYOffset )
 {
-	App->mCamera->Focus( std::copysign( 1.0f, -aYOffset ) );
+	App->mCamera->mSceneCamera->Focus( std::copysign( 1.0f, -aYOffset ) );
 }
 
 bool CModuleWindow::Init()
