@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16.3)
 project(2dGameEngine)
 
+set (CMAKE_CXX_STANDARD 17)
+
 file(GLOB SRC_FILES "src/*.cpp")
 file(GLOB MODULES_SRC_FILES "src/Modules/*.cpp")
 
