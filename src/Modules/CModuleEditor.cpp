@@ -13,6 +13,11 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+CModuleEditor::CModuleEditor()
+{
+	mCurrentDirectory = std::filesystem::path("../resources");
+}
+
 bool CModuleEditor::Init()
 {
 	IMGUI_CHECKVERSION();
@@ -23,7 +28,9 @@ bool CModuleEditor::Init()
 	ImGui_ImplGlfw_InitForOpenGL( App->mWindow->mWindow, true );
 	ImGui_ImplOpenGL3_Init( "#version 130" );
 
-	mPlayIcon = App->mResourceManager->CreateTexture( "textures/play.png" );
+	mPlayIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/play.png" );
+	mDirectoryIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/directory.png" );
+	mFileIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/file.png" );
 
 	return true;
 }
@@ -36,6 +43,7 @@ bool CModuleEditor::Update()
 	RenderGameCameraPanel();
 	RenderScenePanel();
 	RenderGameControlPanel();
+	RenderResourcePanel();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -71,6 +79,8 @@ bool CModuleEditor::Clear()
 	ImGui::DestroyContext();
 
 	delete mPlayIcon;
+	delete mDirectoryIcon;
+	delete mFileIcon;
 
 	return true;
 }
@@ -149,6 +159,16 @@ void CModuleEditor::RenderGameObjectPanel()
 				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight() );
 		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureId(),
 				ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
+			{
+				auto path = (const char*)payload->Data;
+				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->AttachTexture(path);
+			}
+			ImGui::EndDragDropTarget();
+		}
 	}
 
 	ImGui::End();
@@ -220,5 +240,53 @@ void CModuleEditor::RenderGameControlPanel()
 
 	ImGui::PopStyleColor(4);
 	ImGui::PopStyleVar(3);
+	ImGui::End();
+}
+
+void CModuleEditor::RenderResourcePanel()
+{
+	static const std::filesystem::path RESOURCES_PATH = "../resources";
+
+	ImGui::Begin( "Resources", nullptr );
+
+	if( mCurrentDirectory != std::filesystem::path("../resources") )
+		if( ImGui::Button("<-"))
+			mCurrentDirectory = "../resources";
+
+	int i = 0;
+	const auto panelSize = ImGui::GetContentRegionAvail().x;
+	for( const auto& directory : std::filesystem::directory_iterator(mCurrentDirectory) )
+	{
+		const auto& path = directory.path();
+		auto relativePath = std::filesystem::relative( path, RESOURCES_PATH );
+		const auto& filename = relativePath.filename().string();
+
+		const auto imageID = directory.is_directory() ? (void*)(intptr_t)mDirectoryIcon->GetId() : (void*)(intptr_t)mFileIcon->GetId();
+
+		ImGui::PushID(filename.c_str());
+		ImGui::BeginGroup();
+
+		if( ImGui::ImageButton( imageID, ImVec2( 90,90 ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+			if( directory.is_directory() )
+				mCurrentDirectory /= path.filename();
+
+		if( ImGui::BeginDragDropSource() )
+		{
+			const char* itemPath = relativePath.c_str();
+			ImGui::SetDragDropPayload( "Resource_panel", itemPath, (strlen(itemPath)+1)*sizeof(char) );
+			ImGui::EndDragDropSource();
+		}
+
+		ImGui::PushTextWrapPos(100*++i);
+		ImGui::TextWrapped("%s", filename.c_str());
+		ImGui::PopTextWrapPos();
+		ImGui::EndGroup();
+		if( 100*i < panelSize )
+			ImGui::SameLine();
+		else
+			i = 0;
+		ImGui::PopID();
+	}
+
 	ImGui::End();
 }

@@ -5,13 +5,15 @@
 
 #include "glm.hpp"
 
+#include <filesystem>
+
 class CGameObject;
 class CTexture;
 
 class CModuleEditor : public AModule
 {
 public:
-	CModuleEditor() = default;
+	CModuleEditor();
 	~CModuleEditor() = default;
 
 	bool Init() override;
@@ -28,6 +30,7 @@ private:
 	void RenderScenePanel();
 	void RenderGameCameraPanel();
 	void RenderGameControlPanel();
+	void RenderResourcePanel();
 
 	int mSelectedGO = -1;
 	bool mResizedScenePanel = false;
@@ -38,6 +41,10 @@ private:
 	glm::vec2 mGamePanelSize = glm::vec2( 0, 0 );
 
 	CTexture* mPlayIcon = nullptr;
+	CTexture* mDirectoryIcon = nullptr;
+	CTexture* mFileIcon = nullptr;
+
+	std::filesystem::path mCurrentDirectory;
 };
 
 #endif
