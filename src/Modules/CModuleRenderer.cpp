@@ -4,10 +4,10 @@
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "Modules/CModuleCamera.h"
+#include "Modules/CModuleEditor.h"
 #include "Modules/CModuleResourceManager.h"
 #include "Modules/CModuleWindow.h"
 
-#include <iostream>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -16,20 +16,21 @@ bool CModuleRenderer::Init()
 	glEnable( GL_BLEND );
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	CreateShader( mBackShaderProgram, App->mResourceManager->LoadFile( "shaders/BackVertexShader.txt" ).c_str(),
+			App->mResourceManager->LoadFile( "shaders/BackFragmentShader.txt" ).c_str() );
 	CreateShader( mShaderProgram, App->mResourceManager->LoadFile( "shaders/VertexShader.txt" ).c_str(),
 			App->mResourceManager->LoadFile( "shaders/FragmentShader.txt" ).c_str() );
 	CreateShader( mGridShaderProgram, App->mResourceManager->LoadFile( "shaders/GridVertexShader.txt" ).c_str(),
 			App->mResourceManager->LoadFile( "shaders/GridFragmentShader.txt" ).c_str() );
 
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mProjectionMatrix[0][0] );
-
-	InitFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture );
-	return InitFramebuffer( mGameFramebuffer, mGameFramebufferTexture );
+	InitFramebuffer( mBackFramebuffer, mBackFramebufferTexture, App->mWindow->GetWidth(), App->mWindow->GetHeight() );
+	InitFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture, mSceneWidth, mSceneHeight );
+	return InitFramebuffer( mGameFramebuffer, mGameFramebufferTexture, mGameWidth, mGameHeight );
 }
 
 bool CModuleRenderer::PreUpdate()
 {
+	ClearFrameBuffer( mBackFramebuffer, glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
 	ClearFrameBuffer( mSceneFramebuffer, glm::vec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
 	ClearFrameBuffer( mGameFramebuffer, glm::vec4( 0.0f, 0.3f, 0.6f, 1.0f ) );
 
@@ -38,14 +39,18 @@ bool CModuleRenderer::PreUpdate()
 
 bool CModuleRenderer::Update()
 {
-	RenderGameObjects( mSceneFramebuffer, App->mCamera->mSceneCamera );
-	RenderGameObjects( mGameFramebuffer, App->mCamera->mGameCamera );
+	RenderGameObjects( mBackShaderProgram, mBackFramebuffer, App->mCamera->mSceneCamera );
+	RenderGameObjects( mShaderProgram, mSceneFramebuffer, App->mCamera->mSceneCamera );
+	RenderGameObjects( mShaderProgram, mGameFramebuffer, App->mCamera->mGameCamera );
 
 	return true;
 }
 
 bool CModuleRenderer::Clear()
 {
+	glDeleteFramebuffers( 1, &mBackFramebuffer );
+	glDeleteTextures( 1, &mBackFramebufferTexture );
+
 	glDeleteFramebuffers( 1, &mSceneFramebuffer );
 	glDeleteTextures( 1, &mSceneFramebufferTexture );
 
@@ -94,25 +99,36 @@ bool CModuleRenderer::CreateShader( unsigned int& aShaderProgram, const char* aV
 bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPath )
 {
 	const std::string name = "New GameObject" + std::to_string(mGameObjects.size());
-	mGameObjects.push_back( CGameObject( new CComponentRenderer( aTextPath ), name ) );
+	mGameObjects.push_back( CGameObject( ++mNextGOId, new CComponentRenderer( aTextPath ), name ) );
+
+	int r = (mNextGOId & 0x000000FF) >>  0;
+	int g = (mNextGOId & 0x0000FF00) >>  8;
+	int b = (mNextGOId & 0x00FF0000) >> 16;
+
+	mGOIdColor[mNextGOId] = glm::vec3( r, g, b );
+	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
 
 	return true;
 }
 
-void CModuleRenderer::RenderGameObjects( const int& aFramebuffer, CCamera* aCamera ) const
+void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& aFramebuffer, CCamera* aCamera ) const
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
-	glUseProgram( mShaderProgram );
+	glUseProgram( aShaderProgram );
 
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &aCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "view" ), 1, GL_FALSE, &aCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->mProjectionMatrix[0][0] );
 
 	for( const auto& gameObject : mGameObjects )
 	{
+		if( aShaderProgram == mBackShaderProgram )
+			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), mGOIdColor.at(gameObject.mID).x/255.0f, mGOIdColor.at(gameObject.mID).y/255.0f,
+					mGOIdColor.at(gameObject.mID).z/255.0f );
+
 		if( !gameObject.mComponentRenderer || !gameObject.mComponentRenderer->HasTexture() )
 			continue;
 
-		glUniformMatrix4fv( glGetUniformLocation( mShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+		glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
 
 		gameObject.mComponentRenderer->RenderTexture();
 	}
@@ -121,14 +137,15 @@ void CModuleRenderer::RenderGameObjects( const int& aFramebuffer, CCamera* aCame
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-bool CModuleRenderer::InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture )
+bool CModuleRenderer::InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture,
+		const int aWidth, const int aHeight )
 {
 	glGenFramebuffers( 1, &aFramebuffer );
 	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
 
 	glGenTextures( 1, &aFramebufferTexture );
 	glBindTexture( GL_TEXTURE_2D, aFramebufferTexture );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, mSceneWidth, mSceneHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, aWidth, aHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -152,6 +169,7 @@ void CModuleRenderer::ResizeSceneFramebuffer( const int aSceneWidth, const int a
 	mSceneHeight = aSceneHeight;
 
 	ResizeFramebuffer( mSceneFramebuffer, mSceneFramebufferTexture, aSceneWidth, aSceneHeight );
+	ResizeFramebuffer( mBackFramebuffer, mBackFramebufferTexture, aSceneWidth, aSceneHeight );
 }
 
 void CModuleRenderer::ResizeGameFramebuffer( const int aGameWidth, const int aGameHeight )
@@ -167,13 +185,31 @@ void CModuleRenderer::ResizeFramebuffer( unsigned int& aFramebuffer, unsigned in
 	glDeleteFramebuffers( 1, &aFramebuffer );
 	glDeleteTextures( 1, &aFramebufferTexture );
 
-	InitFramebuffer( aFramebuffer, aFramebufferTexture );
+	InitFramebuffer( aFramebuffer, aFramebufferTexture, aWidth, aHeight );
 }
 
-void CModuleRenderer::ClearFrameBuffer( const unsigned int aFrameBuffer, const glm::vec4& aColor )
+void CModuleRenderer::ClearFrameBuffer( const unsigned int aFramebuffer, const glm::vec4& aColor )
 {
-	glBindFramebuffer( GL_FRAMEBUFFER, aFrameBuffer );
+	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
 	glClearColor( aColor.x, aColor.y, aColor.z, aColor. w );
 	glClear( GL_COLOR_BUFFER_BIT );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void CModuleRenderer::CheckSelectedGO( int x, int y )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, mBackFramebuffer );
+	glReadBuffer( GL_COLOR_ATTACHMENT0 );
+
+	glm::vec3 color;
+	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &color);
+
+	for( int i = 0; i < mGameObjects.size(); ++i )
+	{
+		const glm::vec3& GOColor = mGOIdColor[mGameObjects[i].mID];
+		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
+			App->mEditor->SetSelectedGO(i);
+	}
+
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
