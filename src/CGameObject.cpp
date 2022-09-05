@@ -3,7 +3,8 @@
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 
-CGameObject::CGameObject( CComponentRenderer* aComponentRenderer, const std::string& aName ) :
+CGameObject::CGameObject( const unsigned int aID, CComponentRenderer* aComponentRenderer, const std::string& aName ) :
+	mID( aID ),
 	mComponentRenderer( aComponentRenderer ),
 	mName( aName )
 {
