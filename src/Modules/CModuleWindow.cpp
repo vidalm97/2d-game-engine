@@ -2,6 +2,7 @@
 
 #include "CApplication.h"
 #include "Modules/CModuleCamera.h"
+#include "Modules/CModuleRenderer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -25,6 +26,23 @@ void OnScroll( GLFWwindow* aWindow, double aXOffset, double aYOffset )
 	App->mCamera->mSceneCamera->Focus( std::copysign( 1.0f, -aYOffset ) );
 }
 
+void GetSceneCoordinates( double& aX, double& aY )
+{
+	aX =  ( aX-App->mRenderer->mSceneViewportXPos );
+	aY = App->mRenderer->mSceneHeight-( aY-App->mRenderer->mSceneViewportYPos );
+}
+
+void OnMousePress( GLFWwindow* aWindow, int aButton, int aAction, int aMods )
+{
+	if( aButton == GLFW_MOUSE_BUTTON_LEFT && aAction == GLFW_PRESS )
+	{
+		double xpos, ypos;
+		glfwGetCursorPos( App->mWindow->mWindow, &xpos, &ypos );
+		GetSceneCoordinates( xpos, ypos );
+		App->mRenderer->CheckSelectedGO( xpos, ypos );
+	}
+}
+
 bool CModuleWindow::Init()
 {
 	glfwInit();
@@ -44,6 +62,7 @@ bool CModuleWindow::Init()
 
 	glfwSetFramebufferSizeCallback( mWindow, OnResize );
 	glfwSetScrollCallback( mWindow, OnScroll );
+	glfwSetMouseButtonCallback( mWindow, OnMousePress );
 
 	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }

@@ -13,8 +13,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <iostream>
-
 bool CModuleEditor::Init()
 {
 	IMGUI_CHECKVERSION();
@@ -99,6 +97,11 @@ void CModuleEditor::SetUpDockingSpace()
 	ImGui::End();
 }
 
+void CModuleEditor::SetSelectedGO( const int aIndex )
+{
+	mSelectedGO = aIndex;
+}
+
 void CModuleEditor::RenderHierarchyPanel()
 {
 	ImGui::Begin( "Hierarchy" );
@@ -162,6 +165,8 @@ void CModuleEditor::RenderScenePanel()
 	{
 		mScenePanelSize = glm::vec2( scenePanelSize.x, scenePanelSize.y );
 		mResizedScenePanel = true;
+		App->mRenderer->mSceneViewportXPos = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x;
+		App->mRenderer->mSceneViewportYPos = ImGui::GetWindowPos().y+ ImGui::GetWindowContentRegionMin().y;
 	}
 
 	ImGui::Image( (void*)(intptr_t)App->mRenderer->mSceneFramebufferTexture, scenePanelSize, ImVec2(0, 1), ImVec2(1, 0) );

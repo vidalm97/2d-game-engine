@@ -19,6 +19,8 @@ public:
 	bool PreUpdate() override;
 	bool Clear() override;
 
+	void SetSelectedGO( const int aIndex );
+
 private:
 	void SetUpDockingSpace();
 	void RenderHierarchyPanel();
