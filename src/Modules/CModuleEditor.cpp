@@ -159,6 +159,16 @@ void CModuleEditor::RenderGameObjectPanel()
 				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight() );
 		ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureId(),
 				ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
+			{
+				auto path = (const char*)payload->Data;
+				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->AttachTexture(path);
+			}
+			ImGui::EndDragDropTarget();
+		}
 	}
 
 	ImGui::End();
@@ -235,6 +245,8 @@ void CModuleEditor::RenderGameControlPanel()
 
 void CModuleEditor::RenderResourcePanel()
 {
+	static const std::filesystem::path RESOURCES_PATH = "../resources";
+
 	ImGui::Begin( "Resources", nullptr );
 
 	if( mCurrentDirectory != std::filesystem::path("../resources") )
@@ -246,16 +258,24 @@ void CModuleEditor::RenderResourcePanel()
 	for( const auto& directory : std::filesystem::directory_iterator(mCurrentDirectory) )
 	{
 		const auto& path = directory.path();
-		auto relativePath = std::filesystem::relative( path, "../resources" );
+		auto relativePath = std::filesystem::relative( path, RESOURCES_PATH );
 		const auto& filename = relativePath.filename().string();
 
 		const auto imageID = directory.is_directory() ? (void*)(intptr_t)mDirectoryIcon->GetId() : (void*)(intptr_t)mFileIcon->GetId();
 
 		ImGui::PushID(filename.c_str());
 		ImGui::BeginGroup();
+
 		if( ImGui::ImageButton( imageID, ImVec2( 90,90 ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
 			if( directory.is_directory() )
 				mCurrentDirectory /= path.filename();
+
+		if( ImGui::BeginDragDropSource() )
+		{
+			const char* itemPath = relativePath.c_str();
+			ImGui::SetDragDropPayload( "Resource_panel", itemPath, (strlen(itemPath)+1)*sizeof(char) );
+			ImGui::EndDragDropSource();
+		}
 
 		ImGui::PushTextWrapPos(100*++i);
 		ImGui::TextWrapped("%s", filename.c_str());

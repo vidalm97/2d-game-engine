@@ -15,6 +15,7 @@ CComponentRenderer::CComponentRenderer( const std::string& aTexturePath )
 
 bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 {
+	delete mTexture;
 	mTexture = App->mResourceManager->CreateTexture( aTexturePath );
 
 	UpdateVerticesData();
