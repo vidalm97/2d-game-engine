@@ -27,6 +27,9 @@ public:
 	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
 	void RenderGameObjects( const int& aShaderProgram, const int& aFramebuffer, CCamera* aCamera ) const;
 
+	void RenderColliders();
+	void RenderQuad( const glm::vec2& aCenter, const glm::vec2& aSize );
+
 	void ResizeSceneFramebuffer( const int aSceneWidth, const int aSceneHeight );
 	void ResizeGameFramebuffer( const int aGameWidth, const int aGameHeight );
 

@@ -1,6 +1,7 @@
 #include "Modules/CModuleEditor.h"
 
 #include "CApplication.h"
+#include "CComponentBoxCollider.h"
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "CGameObject.h"
@@ -171,6 +172,8 @@ void CModuleEditor::RenderGameObjectPanel()
 		}
 	}
 
+	RenderAddComponentPanel();
+
 	ImGui::End();
 }
 
@@ -289,4 +292,18 @@ void CModuleEditor::RenderResourcePanel()
 	}
 
 	ImGui::End();
+}
+
+void CModuleEditor::RenderAddComponentPanel()
+{
+	std::vector<std::string> items = {"Box Collider"};
+
+	if ( ImGui::BeginCombo("Add Component", 0, ImGuiComboFlags_NoPreview) )
+	{
+		for ( int n = 0; n < items.size(); ++n )
+			if (ImGui::Selectable(items[n].c_str() ) )
+				App->mRenderer->mGameObjects[mSelectedGO].CreateComponentBoxCollider();
+
+		ImGui::EndCombo();
+	}
 }

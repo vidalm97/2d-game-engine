@@ -31,6 +31,7 @@ private:
 	void RenderGameCameraPanel();
 	void RenderGameControlPanel();
 	void RenderResourcePanel();
+	void RenderAddComponentPanel();
 
 	int mSelectedGO = -1;
 	bool mResizedScenePanel = false;

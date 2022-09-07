@@ -7,6 +7,7 @@
 
 #include <string>
 
+class CComponentBoxCollider;
 class CComponentRenderer;
 class CComponentTransform;
 
@@ -19,8 +20,12 @@ public:
 
 	void Clear();
 
+	void CreateComponentBoxCollider();
+
 	unsigned int mID;
 	std::string mName;
+
+	CComponentBoxCollider* mComponentBoxCollider = nullptr;
 	CComponentRenderer* mComponentRenderer = nullptr;
 	CComponentTransform* mComponentTransform = nullptr;
 };
