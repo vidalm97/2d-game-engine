@@ -32,6 +32,7 @@ private:
 	void RenderGameControlPanel();
 	void RenderResourcePanel();
 	void RenderAddComponentPanel();
+	void RenderBoxColliderPanel();
 
 	int mSelectedGO = -1;
 	bool mResizedScenePanel = false;
