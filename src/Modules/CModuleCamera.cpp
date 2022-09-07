@@ -26,7 +26,7 @@ bool CModuleCamera::Update()
 {
 	std::vector<float> vertices;
 
-	for( float i = -200.0f; i <= 200.0f; i+=0.25f )
+	for( float i = -200.0f; i <= 200.0f; i+=1.0f )
 	{
 		vertices.push_back( i );
 		vertices.push_back( -200.0f );
@@ -58,6 +58,7 @@ bool CModuleCamera::Update()
 	glUseProgram( App->mRenderer->mGridShaderProgram );
 	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "view" ), 1, GL_FALSE, &mSceneCamera->mViewMatrix[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "projection" ), 1, GL_FALSE, &mSceneCamera->mProjectionMatrix[0][0] );
+	glUniform3f( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "color" ), 0.5f, 0.5f, 0.5f );
 
 	glBindVertexArray( VAO );
 	glDrawArrays( GL_LINES, 0, vertices.size()/3 );
