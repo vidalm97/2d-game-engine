@@ -30,6 +30,7 @@ bool CModuleEditor::Init()
 	ImGui_ImplOpenGL3_Init( "#version 130" );
 
 	mPlayIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/play.png" );
+	mPauseIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/pause.png" );
 	mDirectoryIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/directory.png" );
 	mFileIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/file.png" );
 
@@ -80,6 +81,7 @@ bool CModuleEditor::Clear()
 	ImGui::DestroyContext();
 
 	delete mPlayIcon;
+	delete mPauseIcon;
 	delete mDirectoryIcon;
 	delete mFileIcon;
 
@@ -245,8 +247,7 @@ void CModuleEditor::RenderGameControlPanel()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse;
 
-
-	ImGui::PushStyleColor( ImGuiCol_WindowBg,ImVec4(0.4f, 0.6f, 0.6f, 1.f));
+	ImGui::PushStyleColor( ImGuiCol_WindowBg,ImVec4(0.0f, 0.3f, 0.5f, 1.f));
 	ImGui::Begin("##toolbar", nullptr, windowFlags );
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x );
 
@@ -262,6 +263,12 @@ void CModuleEditor::RenderGameControlPanel()
 	if( ImGui::ImageButton( (void*)(intptr_t)mPlayIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
 	{
 		// TO DO: trigger game
+	}
+
+	ImGui::SameLine();
+	if( ImGui::ImageButton( (void*)(intptr_t)mPauseIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+	{
+		// TO DO: pause game
 	}
 
 	ImGui::PopStyleColor(4);

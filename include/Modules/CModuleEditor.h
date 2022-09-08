@@ -44,6 +44,7 @@ private:
 	glm::vec2 mGamePanelSize = glm::vec2( 0, 0 );
 
 	CTexture* mPlayIcon = nullptr;
+	CTexture* mPauseIcon = nullptr;
 	CTexture* mDirectoryIcon = nullptr;
 	CTexture* mFileIcon = nullptr;
 
