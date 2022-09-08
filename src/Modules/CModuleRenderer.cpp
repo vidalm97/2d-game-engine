@@ -12,8 +12,16 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+CModuleRenderer::CModuleRenderer() :
+	mGizmo( false )
+{
+}
+
 bool CModuleRenderer::Init()
 {
+	mGizmo.AttachAxisTextures( "../engine_resources/icons/greenArrow.png", "../engine_resources/icons/blueArrow.png" );
+	mGizmo.SetSize( glm::vec2( 0.6f, 0.6f ) );
+
 	glEnable( GL_BLEND );
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -43,6 +51,10 @@ bool CModuleRenderer::Update()
 	RenderGameObjects( mBackShaderProgram, mBackFramebuffer, App->mCamera->mSceneCamera );
 	RenderGameObjects( mShaderProgram, mSceneFramebuffer, App->mCamera->mSceneCamera );
 	RenderGameObjects( mShaderProgram, mGameFramebuffer, App->mCamera->mGameCamera );
+
+	if( App->mEditor->GetSelectedGO() != -1 )
+		RenderGizmo();
+
 	RenderColliders();
 
 	return true;
@@ -109,6 +121,8 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 
 	mGOIdColor[mNextGOId] = glm::vec3( r, g, b );
 	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
+
+	mGizmo.SetPosition( mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
 
 	return true;
 }
@@ -210,7 +224,10 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 	{
 		const glm::vec3& GOColor = mGOIdColor[mGameObjects[i].mID];
 		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
+		{
 			App->mEditor->SetSelectedGO(i);
+			mGizmo.SetPosition( mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+		}
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -262,6 +279,23 @@ void CModuleRenderer::RenderQuad( const glm::vec2& aCenter, const glm::vec2& aSi
 	glDrawArrays( GL_LINES, 0, 8 );
 	glLineWidth(1.0f);
 	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void CModuleRenderer::RenderGizmo()
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
+	glUseProgram( mShaderProgram );
+
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mViewMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE, &mGizmo.mXAxis.mComponentTransform->mModelMatrix[0][0] );
+
+	mGizmo.mXAxis.mComponentRenderer->RenderTexture();
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE, &mGizmo.mYAxis.mComponentTransform->mModelMatrix[0][0] );
+	mGizmo.mYAxis.mComponentRenderer->RenderTexture();
 
 	glUseProgram( 0 );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );

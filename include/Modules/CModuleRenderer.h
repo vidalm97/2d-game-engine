@@ -3,6 +3,7 @@
 
 #include "AModule.h"
 #include "CGameObject.h"
+#include "CGizmo.h"
 
 #include "glm.hpp"
 
@@ -16,7 +17,7 @@ class CCamera;
 class CModuleRenderer : public AModule
 {
 public:
-	CModuleRenderer() = default;
+	CModuleRenderer();
 	~CModuleRenderer() = default;
 
 	bool Init() override;
@@ -56,6 +57,9 @@ public:
 	float mSceneViewportXPos = 0.0f;
 	float mSceneViewportYPos = 0.0f;
 	void ResizeFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
+
+	CGizmo mGizmo;
+	void RenderGizmo();
 private:
 	unsigned int mNextGOId = 0;
 	std::map<unsigned int, glm::vec3> mGOIdColor;

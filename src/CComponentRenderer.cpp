@@ -5,6 +5,7 @@
 #include "Modules/CModuleResourceManager.h"
 
 #include "glad/glad.h"
+#include "glm.hpp"
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 
@@ -25,15 +26,17 @@ bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 
 void CComponentRenderer::UpdateVerticesData()
 {
-	const auto ratio = float(GetTextureWidth())/float(GetTextureHeight());
-	float vertices[] = {
-		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		ratio, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	const float ratio = GetTextureWidth() > GetTextureHeight() ? GetTextureHeight()/GetTextureWidth() : GetTextureWidth()/GetTextureHeight();
+	const glm::vec2 pos = GetTextureWidth() > GetTextureHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
 
-		0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		ratio, 1.0f, 0.0f, 1.0f, 1.0f,
-		ratio, 0.0f, 0.0f, 1.0f, 0.0f
+	float vertices[] = {
+		-pos.x, pos.y, 0.0f, 0.0f, 1.0f,
+		pos.x, -pos.y, 0.0f, 1.0f, 0.0f,
+		-pos.x, -pos.y, 0.0f, 0.0f, 0.0f,
+
+		-pos.x, pos.y, 0.0f, 0.0f, 1.0f,
+		pos.x, pos.y, 0.0f, 1.0f, 1.0f,
+		pos.x, -pos.y, 0.0f, 1.0f, 0.0f
 	};
 
 	glGenBuffers( 1, &mVBO );
