@@ -31,6 +31,8 @@ bool CModuleEditor::Init()
 
 	mPlayIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/play.png" );
 	mPauseIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/pause.png" );
+	mStopIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/stop.png" );
+
 	mDirectoryIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/directory.png" );
 	mFileIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/file.png" );
 
@@ -82,6 +84,8 @@ bool CModuleEditor::Clear()
 
 	delete mPlayIcon;
 	delete mPauseIcon;
+	delete mStopIcon;
+
 	delete mDirectoryIcon;
 	delete mFileIcon;
 
@@ -249,7 +253,6 @@ void CModuleEditor::RenderGameControlPanel()
 
 	ImGui::PushStyleColor( ImGuiCol_WindowBg,ImVec4(0.0f, 0.3f, 0.5f, 1.f));
 	ImGui::Begin("##toolbar", nullptr, windowFlags );
-	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x );
 
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 1.f));
@@ -260,6 +263,8 @@ void CModuleEditor::RenderGameControlPanel()
 				std::min( ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y/aspectRatio );
 	size -= 5.0f;
 
+	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x - 1.5f*size );
+
 	if( ImGui::ImageButton( (void*)(intptr_t)mPlayIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
 	{
 		// TO DO: trigger game
@@ -269,6 +274,12 @@ void CModuleEditor::RenderGameControlPanel()
 	if( ImGui::ImageButton( (void*)(intptr_t)mPauseIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
 	{
 		// TO DO: pause game
+	}
+
+	ImGui::SameLine();
+	if( ImGui::ImageButton( (void*)(intptr_t)mStopIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+	{
+		// TO DO: stop game
 	}
 
 	ImGui::PopStyleColor(4);

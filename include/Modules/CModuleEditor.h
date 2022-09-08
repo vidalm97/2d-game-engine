@@ -45,6 +45,8 @@ private:
 
 	CTexture* mPlayIcon = nullptr;
 	CTexture* mPauseIcon = nullptr;
+	CTexture* mStopIcon = nullptr;
+
 	CTexture* mDirectoryIcon = nullptr;
 	CTexture* mFileIcon = nullptr;
 
