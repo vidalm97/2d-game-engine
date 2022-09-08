@@ -21,6 +21,7 @@ public:
 	bool PreUpdate() override;
 	bool Clear() override;
 
+	int GetSelectedGO() const;
 	void SetSelectedGO( const int aIndex );
 
 private:

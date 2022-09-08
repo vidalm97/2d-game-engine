@@ -108,6 +108,11 @@ void CModuleEditor::SetUpDockingSpace()
 	ImGui::End();
 }
 
+int CModuleEditor::GetSelectedGO() const
+{
+	return mSelectedGO;
+}
+
 void CModuleEditor::SetSelectedGO( const int aIndex )
 {
 	mSelectedGO = aIndex;
@@ -124,7 +129,10 @@ void CModuleEditor::RenderHierarchyPanel()
 
 	for( int i = 0; i < App->mRenderer->mGameObjects.size(); ++i )
 		if ( ImGui::Selectable( App->mRenderer->mGameObjects[i].mName.c_str() , mSelectedGO == i ) )
+		{
 			mSelectedGO = i;
+			App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+		}
 
 	ImGui::End();
 }
@@ -143,7 +151,10 @@ void CModuleEditor::RenderGameObjectPanel()
 	if( ImGui::CollapsingHeader( "Transform", ImGuiTreeNodeFlags_DefaultOpen ) )
 	{
 		if( ImGui::DragFloat2("Position", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mPosition.x, 0.1f, -200.0f, 200.0f, "%0.1f") )
+		{
 			App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
+			App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+		}
 		if( ImGui::DragFloat2("Scale", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mScale.x, 0.1f, 0.1f, 200.0f, "%0.1f") )
 			App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
 		if( ImGui::DragFloat("Rotation", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
