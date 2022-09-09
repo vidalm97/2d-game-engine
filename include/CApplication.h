@@ -11,6 +11,7 @@ class CModuleEditor;
 class CModuleInput;
 class CModuleRenderer;
 class CModuleResourceManager;
+class CModuleTime;
 class CModuleWindow;
 
 class CApplication
@@ -30,6 +31,7 @@ public:
 	CModuleInput* mInput = nullptr;
 	CModuleRenderer* mRenderer = nullptr;
 	CModuleResourceManager* mResourceManager = nullptr;
+	CModuleTime* mTimer = nullptr;
 	CModuleWindow* mWindow = nullptr;
 
 private:

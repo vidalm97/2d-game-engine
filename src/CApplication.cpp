@@ -6,12 +6,14 @@
 #include "Modules/CModuleInput.h"
 #include "Modules/CModuleRenderer.h"
 #include "Modules/CModuleResourceManager.h"
+#include "Modules/CModuleTime.h"
 #include "Modules/CModuleWindow.h"
 
 bool CApplication::Start()
 {
 	// Insert modules in mModules here
 	mModules.push_back( mWindow = new CModuleWindow( 640, 480 ) );
+	mModules.push_back( mTimer = new CModuleTime() );
 	mModules.push_back( mCamera = new CModuleCamera() );
 	mModules.push_back( mInput = new CModuleInput() );
 	mModules.push_back( mRenderer = new CModuleRenderer() );
