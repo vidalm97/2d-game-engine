@@ -3,6 +3,8 @@
 
 #include "AModule.h"
 
+#include "CSerializator.h"
+
 #include <string>
 
 class CTexture;
@@ -18,8 +20,11 @@ public:
 	const std::string LoadFile( const std::string& aFilePath );
 	CTexture* CreateTexture( const std::string& aTexturePath );
 
+	void SerializeScene() const;
+	void DeserializeScene() const;
 private:
 	std::string mResourcesPath;
+	CSerializator mSerializator;
 };
 
 #endif

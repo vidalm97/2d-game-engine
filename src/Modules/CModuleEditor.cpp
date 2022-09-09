@@ -42,6 +42,7 @@ bool CModuleEditor::Init()
 bool CModuleEditor::Update()
 {
 	SetUpDockingSpace();
+	RenderSerializationPanel();
 	RenderHierarchyPanel();
 	RenderGameObjectPanel();
 	RenderGameCameraPanel();
@@ -122,6 +123,28 @@ int CModuleEditor::GetSelectedGO() const
 void CModuleEditor::SetSelectedGO( const int aIndex )
 {
 	mSelectedGO = aIndex;
+}
+
+void CModuleEditor::RenderSerializationPanel()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollWithMouse;
+
+	ImGui::Begin( "##Serialization panel", nullptr, windowFlags );
+
+	ImGui::Dummy(ImVec2(0.0f,3.0f));
+	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 20.0f );
+	if( ImGui::Button( "Save scene" ) )
+		App->mResourceManager->SerializeScene();
+	ImGui::SameLine();
+	if( ImGui::Button( "Load scene" ) )
+		App->mResourceManager->DeserializeScene();
+
+	ImGui::End();
+
+	ImGui::PopStyleVar(3);
 }
 
 void CModuleEditor::RenderHierarchyPanel()

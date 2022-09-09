@@ -25,6 +25,7 @@ target_include_directories(2dGameEngine
     PUBLIC lib/glad/include
     PUBLIC lib/glm
     PUBLIC lib/stb
+    PUBLIC lib/json
 )
 
 target_link_directories(2dGameEngine

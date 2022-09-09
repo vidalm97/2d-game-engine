@@ -26,6 +26,7 @@ public:
 
 private:
 	void SetUpDockingSpace();
+	void RenderSerializationPanel();
 	void RenderHierarchyPanel();
 	void RenderGameObjectPanel();
 	void RenderScenePanel();

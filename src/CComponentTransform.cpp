@@ -22,3 +22,23 @@ void CComponentTransform::UpdateModelMatrix()
 	mModelMatrix[0][1] = -sin;
 	mModelMatrix[1][0] = sin;
 }
+
+void CComponentTransform::Serialize( CSerializator::json& aJson ) const
+{
+	aJson["Position"] = {{"x", mPosition.x}, {"y", mPosition.y}};
+	aJson["Scale"] = {{"x", mScale.x}, {"y", mScale.y}};
+	aJson["Rotation"] = mRotation;
+}
+
+void CComponentTransform::Deserialize( const CSerializator::json& aJson )
+{
+	mPosition.x = aJson.at("Position")["x"];
+	mPosition.y = aJson.at("Position")["y"];
+
+	mScale.x = aJson.at("Scale")["x"];
+	mScale.y = aJson.at("Scale")["y"];
+
+	mRotation = aJson.at("Rotation");
+
+	UpdateModelMatrix();
+}
