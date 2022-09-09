@@ -1,6 +1,11 @@
 #include "Modules/CModuleResourceManager.h"
 
+#include "CApplication.h"
+#include "CComponentTransform.h"
+#include "CGizmo.h"
 #include "CTexture.h"
+#include "Modules/CModuleRenderer.h"
+#include "Modules/CModuleEditor.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -51,4 +56,18 @@ CTexture* CModuleResourceManager::CreateTexture( const std::string& aTexturePath
 	stbi_image_free( data );
 
 	return new CTexture( textureId, width, height, nrChannels );
+}
+
+void CModuleResourceManager::SerializeScene() const
+{
+	mSerializator.SerializeTo( "../resources/scenes/scene.json", App->mRenderer->mGameObjects );
+}
+
+void CModuleResourceManager::DeserializeScene() const
+{
+	App->mRenderer->mGameObjects.clear();
+	mSerializator.DeserializeFrom( "../resources/scenes/scene.json", App->mRenderer->mGameObjects );
+
+	App->mEditor->SetSelectedGO( 0 );
+	App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[0].mComponentTransform->mPosition );
 }
