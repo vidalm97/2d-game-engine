@@ -9,7 +9,9 @@
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 
-CComponentRenderer::CComponentRenderer( const std::string& aTexturePath )
+CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor ) :
+	mTexturePath( aTexturePath ),
+	mBackColor( aBackColor )
 {
 	AttachTexture( aTexturePath );
 }
@@ -17,6 +19,8 @@ CComponentRenderer::CComponentRenderer( const std::string& aTexturePath )
 bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 {
 	delete mTexture;
+
+	mTexturePath = aTexturePath;
 	mTexture = App->mResourceManager->CreateTexture( aTexturePath );
 
 	UpdateVerticesData();
@@ -67,6 +71,11 @@ float CComponentRenderer::GetTextureHeight() const
 	return mTexture->GetHeight();
 }
 
+const glm::vec3& CComponentRenderer::GetBackColor() const
+{
+	return mBackColor;
+}
+
 bool CComponentRenderer::HasTexture() const
 {
 	return mTexture!=nullptr;
@@ -79,4 +88,19 @@ void CComponentRenderer::RenderTexture() const
 	glBindVertexArray( mVAO );
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 	glBindVertexArray( 0 );
+}
+
+void CComponentRenderer::Serialize( CSerializator::json& aJson ) const
+{
+	aJson["texturePath"] = mTexturePath;
+	aJson["BackColor"] = {{"x", mBackColor.x}, {"y", mBackColor.y}, {"z", mBackColor.z}};
+}
+
+void CComponentRenderer::Deserialize( const CSerializator::json& aJson )
+{
+	mBackColor.x = aJson.at("BackColor")["x"];
+	mBackColor.y = aJson.at("BackColor")["y"];
+	mBackColor.z = aJson.at("BackColor")["z"];
+
+	AttachTexture( aJson.at("texturePath") );
 }
