@@ -113,13 +113,12 @@ bool CModuleRenderer::CreateShader( unsigned int& aShaderProgram, const char* aV
 bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPath )
 {
 	const std::string name = "New GameObject" + std::to_string(mGameObjects.size());
-	mGameObjects.push_back( CGameObject( ++mNextGOId, new CComponentRenderer( aTextPath ), name ) );
-
-	int r = (mNextGOId & 0x000000FF) >>  0;
+	int r = (++mNextGOId & 0x000000FF) >>  0;
 	int g = (mNextGOId & 0x0000FF00) >>  8;
 	int b = (mNextGOId & 0x00FF0000) >> 16;
 
-	mGOIdColor[mNextGOId] = glm::vec3( r, g, b );
+	mGameObjects.push_back( CGameObject( mNextGOId, new CComponentRenderer( aTextPath, glm::vec3( r, g, b ) ), name ) );
+
 	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
 
 	mGizmo.SetPosition( mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
@@ -138,8 +137,8 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 	for( const auto& gameObject : mGameObjects )
 	{
 		if( aShaderProgram == mBackShaderProgram )
-			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), mGOIdColor.at(gameObject.mID).x/255.0f, mGOIdColor.at(gameObject.mID).y/255.0f,
-					mGOIdColor.at(gameObject.mID).z/255.0f );
+			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), gameObject.mComponentRenderer->GetBackColor().x/255.0f,
+					gameObject.mComponentRenderer->GetBackColor().y/255.0f, gameObject.mComponentRenderer->GetBackColor().z/255.0f );
 
 		if( !gameObject.mComponentRenderer || !gameObject.mComponentRenderer->HasTexture() )
 			continue;
@@ -222,7 +221,9 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 
 	for( int i = 0; i < mGameObjects.size(); ++i )
 	{
-		const glm::vec3& GOColor = mGOIdColor[mGameObjects[i].mID];
+		if( !mGameObjects[i].mComponentRenderer || !mGameObjects[i].mComponentRenderer->HasTexture() )
+			continue;
+		const glm::vec3& GOColor = mGameObjects[i].mComponentRenderer->GetBackColor();
 		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
 		{
 			App->mEditor->SetSelectedGO(i);

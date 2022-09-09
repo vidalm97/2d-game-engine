@@ -62,7 +62,6 @@ public:
 	void RenderGizmo();
 private:
 	unsigned int mNextGOId = 0;
-	std::map<unsigned int, glm::vec3> mGOIdColor;
 
 	bool InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
 	void ClearFrameBuffer( const unsigned int aFramebuffer, const glm::vec4& aColor );
