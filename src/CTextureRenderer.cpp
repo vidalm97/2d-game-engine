@@ -8,7 +8,8 @@
 #include "glm.hpp"
 #include "GLFW/glfw3.h"
 
-CTextureRenderer::CTextureRenderer( const std::string& aTexturePath )
+CTextureRenderer::CTextureRenderer( const std::string& aTexturePath ) :
+	mScaleDeviation(1.0f)
 {
 	mTexture = App->mResourceManager->CreateTexture( aTexturePath );
 	UpdateVerticesData();
@@ -39,6 +40,11 @@ const std::string& CTextureRenderer::GetTexturePath() const
 	return mTexturePath;
 }
 
+const float CTextureRenderer::GetScaleDeviation() const
+{
+	return mScaleDeviation;
+}
+
 bool CTextureRenderer::AttachTexture( const std::string& aTexturePath )
 {
 	delete mTexture;
@@ -54,7 +60,12 @@ bool CTextureRenderer::AttachTexture( const std::string& aTexturePath )
 void CTextureRenderer::UpdateVerticesData()
 {
 	const float ratio = GetTextureWidth() > GetTextureHeight() ? GetTextureHeight()/GetTextureWidth() : GetTextureWidth()/GetTextureHeight();
-	const glm::vec2 pos = GetTextureWidth() > GetTextureHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
+	glm::vec2 pos = GetTextureWidth() > GetTextureHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
+
+	const auto proportionalSize = GetTextureWidth()*GetTextureHeight()/MAX_TEXTURE_SIZE;
+	mScaleDeviation = glm::pow( proportionalSize, 0.5f );
+	pos.x *= mScaleDeviation;
+	pos.y *= mScaleDeviation;
 
 	float vertices[] = {
 		-pos.x, pos.y, 0.0f, 0.0f, 1.0f,

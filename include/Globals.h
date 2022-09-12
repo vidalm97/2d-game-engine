@@ -5,3 +5,6 @@ enum EAppStatus
 	UPDATE,
 	STOP
 };
+
+// Max texture size
+static int MAX_TEXTURE_SIZE = 1024*1024;

@@ -17,6 +17,7 @@ public:
 	float GetTextureWidth() const;
 	float GetTextureHeight() const;
 	const std::string& GetTexturePath() const;
+	const float GetScaleDeviation() const;
 
 	bool HasTexture() const;
 	bool AttachTexture( const std::string& aTexturePath );
@@ -29,6 +30,7 @@ private:
 	std::string mTexturePath;
 	unsigned int mVBO;
 	unsigned int mVAO;
+	float mScaleDeviation;
 };
 
 #endif

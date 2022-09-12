@@ -16,6 +16,8 @@ void CGizmo::AttachAxisTextures( const std::string& aXAxisTextPath, const std::s
 {
 	mXAxis.mComponentRenderer->AttachTexture( aXAxisTextPath );
 	mYAxis.mComponentRenderer->AttachTexture( aYAxisTextPath );
+	mXOffset *= mXAxis.mComponentRenderer->GetTextureScaleDeviation();
+	mYOffset *= mXAxis.mComponentRenderer->GetTextureScaleDeviation();
 }
 
 const bool CGizmo::IsActive() const

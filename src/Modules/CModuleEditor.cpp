@@ -151,7 +151,6 @@ void CModuleEditor::RenderSerializationPanel()
 
 void CModuleEditor::RenderHierarchyPanel()
 {
-	ImGui::ShowDemoWindow(nullptr);
 	ImGui::Begin( "Hierarchy" );
 
 	if( ImGui::Button( "Create Game Object" ) )

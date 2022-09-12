@@ -33,7 +33,8 @@ void CGameObject::CreateComponentBoxCollider()
 		return;
 
 	mComponentBoxCollider = new CComponentBoxCollider( mComponentTransform->mPosition, mComponentRenderer && mComponentRenderer->HasTexture() ?
-			glm::vec2( mComponentTransform->mScale.x*mComponentRenderer->GetTextureWidth()/mComponentRenderer->GetTextureHeight(), mComponentTransform->mScale.y ) : glm::vec2( 10, 10 ),  false );
+			glm::vec2( mComponentRenderer->GetTextureScaleDeviation()*mComponentTransform->mScale.x*mComponentRenderer->GetTextureWidth()/mComponentRenderer->GetTextureHeight(),
+					mComponentRenderer->GetTextureScaleDeviation()*mComponentTransform->mScale.y ) : glm::vec2( 10, 10 ),  false );
 }
 
 void CGameObject::CreateComponentAnimation()

@@ -24,6 +24,7 @@ public:
 	unsigned int GetTextureId() const;
 	float GetTextureWidth() const;
 	float GetTextureHeight() const;
+	const float GetTextureScaleDeviation() const;
 	const glm::vec3& GetBackColor() const;
 
 	void Serialize( CSerializator::json& aJson ) const;

@@ -42,6 +42,11 @@ float CComponentRenderer::GetTextureHeight() const
 	return mTextureRenderer->GetTextureHeight();
 }
 
+const float CComponentRenderer::GetTextureScaleDeviation() const
+{
+	return mTextureRenderer->GetScaleDeviation();
+}
+
 const glm::vec3& CComponentRenderer::GetBackColor() const
 {
 	return mBackColor;

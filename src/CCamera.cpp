@@ -13,11 +13,11 @@ CCamera::CCamera( const float aMovementSpeed, const float aFocusSpeed ) : mMovem
 	mViewMatrix = glm::mat4(1.0f);
 	mProjectionMatrix = glm::mat4(1.0f);
 
-	mCameraPos = glm::vec3( 1.0f, 0.0f, 10.0f );
+	mCameraPos = glm::vec3( 0.0f, 0.0f, 1.0f );
 	mCameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
 	mCameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
 
-	mDistance = 3.0f;
+	mDistance = 1.0f;
 
 	UpdateProjectionMatrix();
 	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );

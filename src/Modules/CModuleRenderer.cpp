@@ -22,7 +22,7 @@ CModuleRenderer::CModuleRenderer() :
 bool CModuleRenderer::Init()
 {
 	mGizmo.AttachAxisTextures( "../engine_resources/icons/greenArrow.png", "../engine_resources/icons/blueArrow.png" );
-	mGizmo.SetSize( glm::vec2( 0.6f, 0.6f ) );
+	mGizmo.SetSize( glm::vec2( 1.5f, 1.5f ) );
 
 	glEnable( GL_BLEND );
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -42,7 +42,7 @@ bool CModuleRenderer::Init()
 bool CModuleRenderer::PreUpdate()
 {
 	ClearFrameBuffer( mBackFramebuffer, glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-	ClearFrameBuffer( mSceneFramebuffer, glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+	ClearFrameBuffer( mSceneFramebuffer, glm::vec4( 0.3f, 0.3f, 0.3f, 1.0f ) );
 	ClearFrameBuffer( mGameFramebuffer, glm::vec4( 0.0f, 0.3f, 0.6f, 1.0f ) );
 
 	return true;
