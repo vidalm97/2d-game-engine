@@ -1,5 +1,6 @@
 #include "CGameObject.h"
 
+#include "CComponentAnimation.h"
 #include "CComponentBoxCollider.h"
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
@@ -33,6 +34,14 @@ void CGameObject::CreateComponentBoxCollider()
 
 	mComponentBoxCollider = new CComponentBoxCollider( mComponentTransform->mPosition, mComponentRenderer && mComponentRenderer->HasTexture() ?
 			glm::vec2( mComponentTransform->mScale.x*mComponentRenderer->GetTextureWidth()/mComponentRenderer->GetTextureHeight(), mComponentTransform->mScale.y ) : glm::vec2( 10, 10 ),  false );
+}
+
+void CGameObject::CreateComponentAnimation()
+{
+	if( mComponentAnimation )
+		return;
+
+	mComponentAnimation = new CComponentAnimation();
 }
 
 void CGameObject::Serialize( CSerializator::json& aJson ) const

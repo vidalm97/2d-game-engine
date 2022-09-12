@@ -1,7 +1,7 @@
 #include "CComponentRenderer.h"
 
 #include "CApplication.h"
-#include "CTexture.h"
+#include "CTextureRenderer.h"
 #include "Modules/CModuleResourceManager.h"
 
 #include "glad/glad.h"
@@ -10,7 +10,6 @@
 #include "stb_image.h"
 
 CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor ) :
-	mTexturePath( aTexturePath ),
 	mBackColor( aBackColor )
 {
 	AttachTexture( aTexturePath );
@@ -18,57 +17,29 @@ CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const g
 
 bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 {
-	delete mTexture;
-
-	mTexturePath = aTexturePath;
-	mTexture = App->mResourceManager->CreateTexture( aTexturePath );
-
-	UpdateVerticesData();
+	mTextureRenderer = new CTextureRenderer( aTexturePath );
 
 	return true;
 }
 
 void CComponentRenderer::UpdateVerticesData()
 {
-	const float ratio = GetTextureWidth() > GetTextureHeight() ? GetTextureHeight()/GetTextureWidth() : GetTextureWidth()/GetTextureHeight();
-	const glm::vec2 pos = GetTextureWidth() > GetTextureHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
-
-	float vertices[] = {
-		-pos.x, pos.y, 0.0f, 0.0f, 1.0f,
-		pos.x, -pos.y, 0.0f, 1.0f, 0.0f,
-		-pos.x, -pos.y, 0.0f, 0.0f, 0.0f,
-
-		-pos.x, pos.y, 0.0f, 0.0f, 1.0f,
-		pos.x, pos.y, 0.0f, 1.0f, 1.0f,
-		pos.x, -pos.y, 0.0f, 1.0f, 0.0f
-	};
-
-	glGenBuffers( 1, &mVBO );
-	glGenVertexArrays( 1, &mVAO );
-	glBindVertexArray( mVAO );
-	glBindBuffer( GL_ARRAY_BUFFER, mVBO );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW );
-
-	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0 );
-	glEnableVertexAttribArray( 0 );
-
-	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)) );
-	glEnableVertexAttribArray( 1 );
+	mTextureRenderer->UpdateVerticesData();
 }
 
 unsigned int CComponentRenderer::GetTextureId() const
 {
-	return mTexture->GetId();
+	return mTextureRenderer->GetTextureId();
 }
 
 float CComponentRenderer::GetTextureWidth() const
 {
-	return mTexture->GetWidth();
+	return mTextureRenderer->GetTextureWidth();
 }
 
 float CComponentRenderer::GetTextureHeight() const
 {
-	return mTexture->GetHeight();
+	return mTextureRenderer->GetTextureHeight();
 }
 
 const glm::vec3& CComponentRenderer::GetBackColor() const
@@ -78,21 +49,17 @@ const glm::vec3& CComponentRenderer::GetBackColor() const
 
 bool CComponentRenderer::HasTexture() const
 {
-	return mTexture!=nullptr;
+	return mTextureRenderer != nullptr;
 }
 
 void CComponentRenderer::RenderTexture() const
 {
-	glBindTexture( GL_TEXTURE_2D, GetTextureId() );
-
-	glBindVertexArray( mVAO );
-	glDrawArrays( GL_TRIANGLES, 0, 6 );
-	glBindVertexArray( 0 );
+	mTextureRenderer->Render();
 }
 
 void CComponentRenderer::Serialize( CSerializator::json& aJson ) const
 {
-	aJson["texturePath"] = mTexturePath;
+	aJson["texturePath"] = mTextureRenderer->GetTexturePath();
 	aJson["BackColor"] = {{"x", mBackColor.x}, {"y", mBackColor.y}, {"z", mBackColor.z}};
 }
 

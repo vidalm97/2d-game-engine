@@ -1,6 +1,7 @@
 #include "Modules/CModuleEditor.h"
 
 #include "CApplication.h"
+#include "CComponentAnimation.h"
 #include "CComponentBoxCollider.h"
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
@@ -13,6 +14,7 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 
 CModuleEditor::CModuleEditor()
 {
@@ -149,6 +151,7 @@ void CModuleEditor::RenderSerializationPanel()
 
 void CModuleEditor::RenderHierarchyPanel()
 {
+	ImGui::ShowDemoWindow(nullptr);
 	ImGui::Begin( "Hierarchy" );
 
 	if( ImGui::Button( "Create Game Object" ) )
@@ -215,6 +218,12 @@ void CModuleEditor::RenderGameObjectPanel()
 			}
 			ImGui::EndDragDropTarget();
 		}
+	}
+
+	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation )
+	{
+		ImGui::Dummy( ImVec2( 0, 1 ) );
+		RenderAnimationPanel();
 	}
 
 	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider )
@@ -360,13 +369,21 @@ void CModuleEditor::RenderResourcePanel()
 
 void CModuleEditor::RenderAddComponentPanel()
 {
-	std::vector<std::string> items = {"Box Collider"};
+	std::vector<std::string> items = { "Box Collider", "Animation" };
 
 	if ( ImGui::BeginCombo("Add Component", 0, ImGuiComboFlags_NoPreview) )
 	{
 		for ( int n = 0; n < items.size(); ++n )
 			if (ImGui::Selectable(items[n].c_str() ) )
-				App->mRenderer->mGameObjects[mSelectedGO].CreateComponentBoxCollider();
+				switch( n )
+				{
+					case 0:
+						App->mRenderer->mGameObjects[mSelectedGO].CreateComponentBoxCollider();
+						break;
+					case 1:
+						App->mRenderer->mGameObjects[mSelectedGO].CreateComponentAnimation();
+						break;
+				}
 
 		ImGui::EndCombo();
 	}
@@ -384,4 +401,62 @@ void CModuleEditor::RenderBoxColliderPanel()
 	auto size = App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->GetSize();
 	if( ImGui::DragFloat2("Size", (float*)&size.x, 0.1f, -200.0f, 200.0f, "%0.01f") )
 		App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->SetSize( size );
+}
+
+void CModuleEditor::RenderAnimationPanel()
+{
+	ImGui::CollapsingHeader( "Animation", ImGuiTreeNodeFlags_DefaultOpen );
+
+	if( ImGui::Button( "Add state" ) )
+		App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation->AddAnimationState();
+
+	int stateCount = 0;
+	for( auto& animationState : App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation->GetAnimationStates() )
+	{
+		static int size = 64;
+		ImGui::PushID( "state"+stateCount);
+		++stateCount;
+		std::string name = animationState.GetName();
+		if(ImGui::ResizableInputText( "##", &name, ImGuiInputTextFlags_CallbackResize ))
+			animationState.SetName( name );
+
+		if( ImGui::Button( "Add sprite" ) )
+			animationState.AddNotTextured();
+
+		int spriteCount = 0;
+		for( auto& sprite : animationState.GetSprites() )
+		{
+			if( sprite.first.HasTexture() )
+			{
+				const auto aspectRatio = sprite.first.GetTextureWidth()/sprite.first.GetTextureHeight();
+				auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
+						std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
+				size /= 2;
+
+				ImGui::Text( "Sprite" );
+				ImGui::Image( (void*)(intptr_t)sprite.first.GetTextureId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ),
+						ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
+			}
+			else
+			{
+				ImGui::Text("Drop sprite");
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
+				{
+					auto path = (const char*)payload->Data;
+					sprite.first.AttachTexture(path);
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::SameLine();
+			ImGui::PushID( stateCount+"sprite"+spriteCount);
+			++spriteCount;
+			ImGui::DragFloat("##", (float*)&sprite.second, 0.1f, 0.01f, 180.0f, "%0.1f");
+			ImGui::PopID();
+		}
+		ImGui::PopID();
+	}
 }
