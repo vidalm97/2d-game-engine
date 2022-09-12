@@ -7,7 +7,7 @@
 
 #include <string>
 
-class CTexture;
+class CTextureRenderer;
 
 class CComponentRenderer
 {
@@ -30,14 +30,10 @@ public:
 	void Deserialize( const CSerializator::json& aJson );
 
 private:
-	CTexture* mTexture = nullptr;
-	std::string mTexturePath;
+	CTextureRenderer* mTextureRenderer;
 
 	// Used only for mouse picking
 	glm::vec3 mBackColor = glm::vec3(0,0,0);
-
-	unsigned int mVBO;
-	unsigned int mVAO;
 };
 
 #endif

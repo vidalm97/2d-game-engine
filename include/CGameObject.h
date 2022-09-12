@@ -8,6 +8,7 @@
 
 #include <string>
 
+class CComponentAnimation;
 class CComponentBoxCollider;
 class CComponentRenderer;
 class CComponentTransform;
@@ -22,6 +23,7 @@ public:
 	void Clear();
 
 	void CreateComponentBoxCollider();
+	void CreateComponentAnimation();
 
 	void Serialize( CSerializator::json& aJson ) const;
 	void Deserialize( const CSerializator::json& aJson );
@@ -29,6 +31,7 @@ public:
 	unsigned int mID;
 	std::string mName;
 
+	CComponentAnimation* mComponentAnimation = nullptr;
 	CComponentBoxCollider* mComponentBoxCollider = nullptr;
 	CComponentRenderer* mComponentRenderer = nullptr;
 	CComponentTransform* mComponentTransform = nullptr;

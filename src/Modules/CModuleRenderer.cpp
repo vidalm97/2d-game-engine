@@ -1,12 +1,14 @@
 #include "Modules/CModuleRenderer.h"
 
 #include "CApplication.h"
+#include "CComponentAnimation.h"
 #include "CComponentBoxCollider.h"
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 #include "Modules/CModuleCamera.h"
 #include "Modules/CModuleEditor.h"
 #include "Modules/CModuleResourceManager.h"
+#include "Modules/CModuleTime.h"
 #include "Modules/CModuleWindow.h"
 
 #include "glad/glad.h"
@@ -140,12 +142,24 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), gameObject.mComponentRenderer->GetBackColor().x/255.0f,
 					gameObject.mComponentRenderer->GetBackColor().y/255.0f, gameObject.mComponentRenderer->GetBackColor().z/255.0f );
 
-		if( !gameObject.mComponentRenderer || !gameObject.mComponentRenderer->HasTexture() )
-			continue;
+		if( gameObject.mComponentRenderer && gameObject.mComponentRenderer->HasTexture() )
+		{
 
-		glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
 
-		gameObject.mComponentRenderer->RenderTexture();
+			gameObject.mComponentRenderer->RenderTexture();
+		}
+		if( gameObject.mComponentAnimation && gameObject.mComponentAnimation->HasAnimationStates() )
+		{
+			auto& animationState = gameObject.mComponentAnimation->GetCurrentAnimationState();
+			if( animationState.HasSprites() && animationState.GetCurrentSprite().HasTexture() )
+			{
+				animationState.AddTime( App->mTimer->GetDeltaTime() );
+				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+
+				animationState.RenderCurrentSprite();
+			}
+		}
 	}
 
 	glUseProgram( 0 );
