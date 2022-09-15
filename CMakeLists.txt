@@ -9,9 +9,6 @@ file(GLOB MODULES_SRC_FILES "src/Modules/*.cpp")
 set(INC_FILES_DIR "include/")
 include_directories(${INC_FILES_DIR})
 
-find_package(SDL2 REQUIRED)
-include_directories(2dGameEngine ${SDL2_INCLUDE_DIRS})
-
 add_executable(2dGameEngine ${SRC_FILES} ${MODULES_SRC_FILES})
 
 add_subdirectory(lib/glfw)
