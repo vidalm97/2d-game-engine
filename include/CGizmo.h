@@ -17,17 +17,19 @@ public:
 	void SetPosition( const glm::vec2& aPosition );
 	void SetSize( const glm::vec2& aSize );
 
+	const CGameObject& GetXAxis() const;
+	const CGameObject& GetYAxis() const;
 	const glm::vec2& GetXOffset() const;
 	const glm::vec2& GetYOffset() const;
 
 	void AttachAxisTextures( const std::string& aXAxisTextPath, const std::string& aYAxisTextPath );
 
-	CGameObject mXAxis;
-	CGameObject mYAxis;
 
 private:
 	bool mIsActive;
 
+	CGameObject mXAxis;
+	CGameObject mYAxis;
 	glm::vec2 mXOffset;
 	glm::vec2 mYOffset;
 };

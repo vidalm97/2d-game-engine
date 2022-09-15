@@ -50,6 +50,16 @@ void CGizmo::SetSize( const glm::vec2& aSize )
 	mYOffset *= aSize;
 }
 
+const CGameObject& CGizmo::GetXAxis() const
+{
+	return mXAxis;
+}
+
+const CGameObject& CGizmo::GetYAxis() const
+{
+	return mYAxis;
+}
+
 const glm::vec2& CGizmo::GetXOffset() const
 {
 	return mXOffset;
