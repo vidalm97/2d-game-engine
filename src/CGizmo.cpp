@@ -5,19 +5,21 @@
 
 CGizmo::CGizmo( const bool aIsActive ) :
 	mIsActive( aIsActive ),
-	mXAxis( 0, new CComponentRenderer(), "XAxisGizmo" ),
-	mYAxis( 0, new CComponentRenderer(), "YAxisGizmo" )
+	mXAxis( 0, "XAxisGizmo" ),
+	mYAxis( 0, "YAxisGizmo" )
 {
+	mXAxis.PushComponent<CComponentRenderer>( CComponentRenderer() );
+	mYAxis.PushComponent<CComponentRenderer>( CComponentRenderer() );
 	mXOffset =  glm::vec2( 0.5f, 0.0f );
 	mYOffset =  glm::vec2( 0.0f, 0.5f );
 }
 
 void CGizmo::AttachAxisTextures( const std::string& aXAxisTextPath, const std::string& aYAxisTextPath )
 {
-	mXAxis.mComponentRenderer->AttachTexture( aXAxisTextPath );
-	mYAxis.mComponentRenderer->AttachTexture( aYAxisTextPath );
-	mXOffset *= mXAxis.mComponentRenderer->GetTextureScaleDeviation();
-	mYOffset *= mXAxis.mComponentRenderer->GetTextureScaleDeviation();
+	static_cast<CComponentRenderer*>(mXAxis.GetComponent<RENDERER>())->AttachTexture( aXAxisTextPath );
+	static_cast<CComponentRenderer*>(mYAxis.GetComponent<RENDERER>())->AttachTexture( aYAxisTextPath );
+	mXOffset *= static_cast<CComponentRenderer*>(mXAxis.GetComponent<RENDERER>())->GetTextureScaleDeviation();
+	mYOffset *= static_cast<CComponentRenderer*>(mXAxis.GetComponent<RENDERER>())->GetTextureScaleDeviation();
 }
 
 const bool CGizmo::IsActive() const
@@ -32,18 +34,18 @@ void CGizmo::SetActive( const bool aIsActive )
 
 void CGizmo::SetPosition( const glm::vec2& aPosition )
 {
-	mXAxis.mComponentTransform->mPosition = aPosition + mXOffset;
-	mXAxis.mComponentTransform->UpdateModelMatrix();
-	mYAxis.mComponentTransform->mPosition = aPosition + mYOffset;
-	mYAxis.mComponentTransform->UpdateModelMatrix();
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->mPosition = aPosition + mXOffset;
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->mPosition = aPosition + mYOffset;
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
 }
 
 void CGizmo::SetSize( const glm::vec2& aSize )
 {
-	mXAxis.mComponentTransform->mScale = aSize;
-	mXAxis.mComponentTransform->UpdateModelMatrix();
-	mYAxis.mComponentTransform->mScale = aSize;
-	mYAxis.mComponentTransform->UpdateModelMatrix();
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->mScale = aSize;
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->mScale = aSize;
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
 	mXOffset *= aSize;
 	mYOffset *= aSize;
 }

@@ -119,11 +119,12 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 	int g = (mNextGOId & 0x0000FF00) >>  8;
 	int b = (mNextGOId & 0x00FF0000) >> 16;
 
-	mGameObjects.push_back( CGameObject( mNextGOId, new CComponentRenderer( aTextPath, glm::vec3( r, g, b ) ), name ) );
+	mGameObjects.push_back( CGameObject( mNextGOId, name ) );
+	mGameObjects.back().PushComponent<CComponentRenderer>( CComponentRenderer( aTextPath, glm::vec3( r, g, b ) ) );
 
 	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
 
-	mGizmo.SetPosition( mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+	mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
 
 	return true;
 }
@@ -138,24 +139,28 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 
 	for( const auto& gameObject : mGameObjects )
 	{
+		const auto renderer = static_cast<CComponentRenderer*>(gameObject.GetComponent<RENDERER>());
 		if( aShaderProgram == mBackShaderProgram )
-			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), gameObject.mComponentRenderer->GetBackColor().x/255.0f,
-					gameObject.mComponentRenderer->GetBackColor().y/255.0f, gameObject.mComponentRenderer->GetBackColor().z/255.0f );
+			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), renderer->GetBackColor().x/255.0f,
+					renderer->GetBackColor().y/255.0f, renderer->GetBackColor().z/255.0f );
 
-		if( gameObject.mComponentRenderer && gameObject.mComponentRenderer->HasTexture() )
+		const auto transform = static_cast<CComponentTransform*>(gameObject.GetComponent<TRANSFORM>());
+		if( renderer && renderer->HasTexture() )
 		{
 
-			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->mModelMatrix[0][0] );
 
-			gameObject.mComponentRenderer->RenderTexture();
+			renderer->RenderTexture();
 		}
-		if( gameObject.mComponentAnimation && gameObject.mComponentAnimation->HasAnimationStates() )
+
+		const auto animation = static_cast<CComponentAnimation*>(gameObject.GetComponent<ANIMATION>());
+		if( animation && animation->HasAnimationStates() )
 		{
-			auto& animationState = gameObject.mComponentAnimation->GetCurrentAnimationState();
+			auto& animationState = animation->GetCurrentAnimationState();
 			if( animationState.HasSprites() && animationState.GetCurrentSprite().HasTexture() )
 			{
 				animationState.AddTime( App->mTimer->GetDeltaTime() );
-				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &gameObject.mComponentTransform->mModelMatrix[0][0] );
+				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->mModelMatrix[0][0] );
 
 				animationState.RenderCurrentSprite();
 			}
@@ -235,13 +240,14 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 
 	for( int i = 0; i < mGameObjects.size(); ++i )
 	{
-		if( !mGameObjects[i].mComponentRenderer || !mGameObjects[i].mComponentRenderer->HasTexture() )
+		const auto renderer = static_cast<CComponentRenderer*>(mGameObjects[i].GetComponent<RENDERER>());
+		if( !renderer || !renderer->HasTexture() )
 			continue;
-		const glm::vec3& GOColor = mGameObjects[i].mComponentRenderer->GetBackColor();
+		const glm::vec3& GOColor = renderer->GetBackColor();
 		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
 		{
 			App->mEditor->SetSelectedGO(i);
-			mGizmo.SetPosition( mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+			mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
 		}
 	}
 
@@ -252,8 +258,9 @@ void CModuleRenderer::RenderColliders()
 {
 	for( const auto& GO : mGameObjects )
 	{
-		if( GO.mComponentBoxCollider )
-			RenderQuad( GO.mComponentBoxCollider->GetCenter(), GO.mComponentBoxCollider->GetSize() );
+		const auto boxCollider = static_cast<CComponentBoxCollider*>(GO.GetComponent<BOX_COLLIDER>());
+		if( boxCollider )
+			RenderQuad( boxCollider->GetCenter(), boxCollider->GetSize() );
 	}
 }
 
@@ -306,11 +313,13 @@ void CModuleRenderer::RenderGizmo()
 
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE, &mGizmo.mXAxis.mComponentTransform->mModelMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
+			&static_cast<CComponentTransform*>(mGizmo.mXAxis.GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
 
-	mGizmo.mXAxis.mComponentRenderer->RenderTexture();
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE, &mGizmo.mYAxis.mComponentTransform->mModelMatrix[0][0] );
-	mGizmo.mYAxis.mComponentRenderer->RenderTexture();
+	static_cast<CComponentRenderer*>(mGizmo.mXAxis.GetComponent<RENDERER>())->RenderTexture();
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
+			&static_cast<CComponentTransform*>(mGizmo.mYAxis.GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
+	static_cast<CComponentRenderer*>(mGizmo.mYAxis.GetComponent<RENDERER>())->RenderTexture();
 
 	glUseProgram( 0 );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
