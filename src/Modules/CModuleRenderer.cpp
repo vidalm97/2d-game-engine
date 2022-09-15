@@ -314,12 +314,12 @@ void CModuleRenderer::RenderGizmo()
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.mXAxis.GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
+			&static_cast<CComponentTransform*>(mGizmo.GetXAxis().GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
 
-	static_cast<CComponentRenderer*>(mGizmo.mXAxis.GetComponent<RENDERER>())->RenderTexture();
+	static_cast<CComponentRenderer*>(mGizmo.GetXAxis().GetComponent<RENDERER>())->RenderTexture();
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.mYAxis.GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
-	static_cast<CComponentRenderer*>(mGizmo.mYAxis.GetComponent<RENDERER>())->RenderTexture();
+			&static_cast<CComponentTransform*>(mGizmo.GetYAxis().GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
+	static_cast<CComponentRenderer*>(mGizmo.GetYAxis().GetComponent<RENDERER>())->RenderTexture();
 
 	glUseProgram( 0 );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
