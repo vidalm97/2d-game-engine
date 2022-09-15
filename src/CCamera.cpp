@@ -7,20 +7,27 @@
 #include "GLFW/glfw3.h"
 #include "gtc/matrix_transform.hpp"
 
-CCamera::CCamera( const float aMovementSpeed, const float aFocusSpeed ) : mMovementSpeed(aMovementSpeed), mFocusSpeed(aFocusSpeed)
+CCamera::CCamera( const float aMovementSpeed, const float aFocusSpeed, const float aDistance, const glm::vec3& aPosition,
+		const glm::vec3& aFront, const glm::vec3& aUp ) :
+	mMovementSpeed( aMovementSpeed ),
+	mFocusSpeed( aFocusSpeed ),
+	mDistance( aDistance ),
+	mPosition( aPosition ),
+	mFront( aFront ),
+	mUp( aUp )
 {
-	mModelMatrix = glm::mat4(1.0f);
-	mViewMatrix = glm::mat4(1.0f);
-	mProjectionMatrix = glm::mat4(1.0f);
-
-	mCameraPos = glm::vec3( 0.0f, 0.0f, 1.0f );
-	mCameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
-	mCameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
-
-	mDistance = 1.0f;
-
 	UpdateProjectionMatrix();
-	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
+	mViewMatrix = glm::lookAt( mPosition, mPosition+mFront, mUp );
+}
+
+const glm::mat4& CCamera::GetViewMatrix() const
+{
+	return mViewMatrix;
+}
+
+const glm::mat4& CCamera::GetProjectionMatrix() const
+{
+	return mProjectionMatrix;
 }
 
 void CCamera::Focus( const float aDistance )
@@ -38,6 +45,6 @@ void CCamera::UpdateProjectionMatrix()
 
 void CCamera::MoveCamera( const glm::vec3& aDirection )
 {
-	mCameraPos += mMovementSpeed*aDirection;
-	mViewMatrix = glm::lookAt( mCameraPos, mCameraPos+mCameraFront, mCameraUp );
+	mPosition += mMovementSpeed*aDirection;
+	mViewMatrix = glm::lookAt( mPosition, mPosition+mFront, mUp );
 }

@@ -56,8 +56,8 @@ bool CModuleCamera::Update()
 	glBindFramebuffer( GL_FRAMEBUFFER, App->mRenderer->mSceneFramebuffer );
 
 	glUseProgram( App->mRenderer->mGridShaderProgram );
-	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "view" ), 1, GL_FALSE, &mSceneCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "projection" ), 1, GL_FALSE, &mSceneCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "view" ), 1, GL_FALSE, &mSceneCamera->GetViewMatrix()[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "projection" ), 1, GL_FALSE, &mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniform3f( glGetUniformLocation( App->mRenderer->mGridShaderProgram, "color" ), 0.5f, 0.5f, 0.5f );
 
 	glBindVertexArray( VAO );
