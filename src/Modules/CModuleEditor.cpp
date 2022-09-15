@@ -159,10 +159,10 @@ void CModuleEditor::RenderHierarchyPanel()
 	}
 
 	for( int i = 0; i < App->mRenderer->mGameObjects.size(); ++i )
-		if ( ImGui::Selectable( App->mRenderer->mGameObjects[i].mName.c_str() , mSelectedGO == i ) )
+		if ( ImGui::Selectable( App->mRenderer->mGameObjects[i].GetName().c_str() , mSelectedGO == i ) )
 		{
 			mSelectedGO = i;
-			App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+			App->mRenderer->mGizmo.SetPosition( static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
 		}
 
 	ImGui::End();
@@ -181,20 +181,22 @@ void CModuleEditor::RenderGameObjectPanel()
 	ImGui::Dummy( ImVec2( 0, 1 ) );
 	if( ImGui::CollapsingHeader( "Transform", ImGuiTreeNodeFlags_DefaultOpen ) )
 	{
-		if( ImGui::DragFloat2("Position", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mPosition.x, 0.1f, -200.0f, 200.0f, "%0.1f") )
+		const auto transform = static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<TRANSFORM>());
+		if( ImGui::DragFloat2("Position", (float*)&transform->mPosition.x, 0.1f, -200.0f, 200.0f, "%0.1f") )
 		{
-			App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
-			App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].mComponentTransform->mPosition );
+			transform->UpdateModelMatrix();
+			App->mRenderer->mGizmo.SetPosition( transform->mPosition );
 		}
-		if( ImGui::DragFloat2("Scale", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mScale.x, 0.1f, 0.1f, 200.0f, "%0.1f") )
-			App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
-		if( ImGui::DragFloat("Rotation", (float*)&App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
-			App->mRenderer->mGameObjects[mSelectedGO].mComponentTransform->UpdateModelMatrix();
+		if( ImGui::DragFloat2("Scale", (float*)&transform->mScale.x, 0.1f, 0.1f, 200.0f, "%0.1f") )
+			transform->UpdateModelMatrix();
+		if( ImGui::DragFloat("Rotation", (float*)&transform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
+			transform->UpdateModelMatrix();
 	}
 
-	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer && App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->HasTexture() )
+	const auto renderer = static_cast<CComponentRenderer*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<RENDERER>());
+	if( renderer && renderer->HasTexture() )
 	{
-		const auto aspectRatio = App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureWidth()/App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight();
+		const auto aspectRatio = renderer->GetTextureWidth()/renderer->GetTextureHeight();
 		auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
 				std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
 		size /= 2;
@@ -202,9 +204,8 @@ void CModuleEditor::RenderGameObjectPanel()
 		ImGui::Dummy( ImVec2( 0, 1 ) );
 		if( ImGui::CollapsingHeader( "Sprite renderer", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			ImGui::Text( "Dimensions = %d x %d", int(App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureWidth()),
-				int(App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureHeight()) );
-			ImGui::Image( (void*)(intptr_t)App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->GetTextureId(),
+			ImGui::Text( "Dimensions = %d x %d", int(renderer->GetTextureWidth()), int(renderer->GetTextureHeight()) );
+			ImGui::Image( (void*)(intptr_t)renderer->GetTextureId(),
 					ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
 		}
 
@@ -213,19 +214,19 @@ void CModuleEditor::RenderGameObjectPanel()
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
 			{
 				auto path = (const char*)payload->Data;
-				App->mRenderer->mGameObjects[mSelectedGO].mComponentRenderer->AttachTexture(path);
+				renderer->AttachTexture(path);
 			}
 			ImGui::EndDragDropTarget();
 		}
 	}
 
-	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation )
+	if( static_cast<CComponentAnimation*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<ANIMATION>()) )
 	{
 		ImGui::Dummy( ImVec2( 0, 1 ) );
 		RenderAnimationPanel();
 	}
 
-	if( App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider )
+	if( static_cast<CComponentBoxCollider*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<BOX_COLLIDER>()) )
 	{
 		ImGui::Dummy( ImVec2( 0, 1 ) );
 		RenderBoxColliderPanel();
@@ -377,10 +378,17 @@ void CModuleEditor::RenderAddComponentPanel()
 				switch( n )
 				{
 					case 0:
-						App->mRenderer->mGameObjects[mSelectedGO].CreateComponentBoxCollider();
+					{
+						const auto transform = static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<TRANSFORM>());
+						const auto renderer = static_cast<CComponentRenderer*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<RENDERER>());
+						App->mRenderer->mGameObjects[mSelectedGO].PushComponent<CComponentBoxCollider>( CComponentBoxCollider( transform->mPosition,
+								renderer && renderer->HasTexture() ?
+								glm::vec2( renderer->GetTextureScaleDeviation()*transform->mScale.x*renderer->GetTextureWidth()/renderer->GetTextureHeight(),
+								renderer->GetTextureScaleDeviation()*transform->mScale.y ) : glm::vec2( 10, 10 ),  false ) );
 						break;
+					}
 					case 1:
-						App->mRenderer->mGameObjects[mSelectedGO].CreateComponentAnimation();
+						App->mRenderer->mGameObjects[mSelectedGO].PushComponent<CComponentAnimation>( CComponentAnimation() );
 						break;
 				}
 
@@ -392,25 +400,27 @@ void CModuleEditor::RenderBoxColliderPanel()
 {
 	ImGui::CollapsingHeader( "Box Collider", ImGuiTreeNodeFlags_DefaultOpen );
 
-	auto center = App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->GetCenter();
+	const auto boxCollider = static_cast<CComponentBoxCollider*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<BOX_COLLIDER>());
+	auto center = boxCollider->GetCenter();
 	if( ImGui::DragFloat2("Center", (float*)&center.x, 0.1f, -200.0f, 200.0f, "%0.01f") )
-		App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->SetCenter( center );
+		boxCollider->SetCenter( center );
 
 
-	auto size = App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->GetSize();
+	auto size = boxCollider->GetSize();
 	if( ImGui::DragFloat2("Size", (float*)&size.x, 0.1f, -200.0f, 200.0f, "%0.01f") )
-		App->mRenderer->mGameObjects[mSelectedGO].mComponentBoxCollider->SetSize( size );
+		boxCollider->SetSize( size );
 }
 
 void CModuleEditor::RenderAnimationPanel()
 {
 	ImGui::CollapsingHeader( "Animation", ImGuiTreeNodeFlags_DefaultOpen );
 
+	const auto animation = static_cast<CComponentAnimation*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<ANIMATION>());
 	if( ImGui::Button( "Add state" ) )
-		App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation->AddAnimationState();
+		animation->AddAnimationState();
 
 	int stateCount = 0;
-	for( auto& animationState : App->mRenderer->mGameObjects[mSelectedGO].mComponentAnimation->GetAnimationStates() )
+	for( auto& animationState : animation->GetAnimationStates() )
 	{
 		static int size = 64;
 		ImGui::PushID( "state"+stateCount);

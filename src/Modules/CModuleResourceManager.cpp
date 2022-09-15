@@ -69,5 +69,5 @@ void CModuleResourceManager::DeserializeScene() const
 	mSerializator.DeserializeFrom( "../resources/scenes/scene.json", App->mRenderer->mGameObjects );
 
 	App->mEditor->SetSelectedGO( 0 );
-	App->mRenderer->mGizmo.SetPosition( App->mRenderer->mGameObjects[0].mComponentTransform->mPosition );
+	App->mRenderer->mGizmo.SetPosition( static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[0].GetComponent<TRANSFORM>())->mPosition );
 }
