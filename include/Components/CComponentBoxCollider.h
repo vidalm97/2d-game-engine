@@ -1,12 +1,14 @@
 #ifndef CCOMPONENT_BOX_COLLIDER__H
 #define CCOMPONENT_BOX_COLLIDER__H
 
+#include "AComponent.h"
+
 #include "glm.hpp"
 
-class CComponentBoxCollider
+class CComponentBoxCollider : public AComponent
 {
 public:
-	CComponentBoxCollider( const glm::vec2& aCenter, const glm::vec2& aSize, const bool aIsTrigger );
+	CComponentBoxCollider( const glm::vec2& aCenter, const glm::vec2& aSize, const bool aIsTrigger, const bool aActive = true );
 	~CComponentBoxCollider() = default;
 
 	const glm::vec2& GetCenter() const;

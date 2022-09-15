@@ -5,11 +5,12 @@ set (CMAKE_CXX_STANDARD 17)
 
 file(GLOB SRC_FILES "src/*.cpp")
 file(GLOB MODULES_SRC_FILES "src/Modules/*.cpp")
+file(GLOB COMPONENTS_SRC_FILES "src/Components/*.cpp")
 
-set(INC_FILES_DIR "include/")
+set(INC_FILES_DIR "include/" "include/Components")
 include_directories(${INC_FILES_DIR})
 
-add_executable(2dGameEngine ${SRC_FILES} ${MODULES_SRC_FILES})
+add_executable(2dGameEngine ${SRC_FILES} ${MODULES_SRC_FILES} ${COMPONENTS_SRC_FILES})
 
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/glad/src)

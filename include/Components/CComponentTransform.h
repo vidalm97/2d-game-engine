@@ -1,14 +1,15 @@
 #ifndef CCOMPONENTTRANSFORM__H
 #define CCOMPONENTTRANSFORM__H
 
+#include "AComponent.h"
 #include "CSerializator.h"
 
 #include "glm.hpp"
 
-class CComponentTransform
+class CComponentTransform : public AComponent
 {
 public:
-	CComponentTransform();
+	CComponentTransform( const bool aActive = true );
 	~CComponentTransform() = default;
 
 	void UpdateModelMatrix();

@@ -2,7 +2,8 @@
 
 #include "gtc/matrix_transform.hpp"
 
-CComponentTransform::CComponentTransform()
+CComponentTransform::CComponentTransform( const bool aActive ) :
+	AComponent( TRANSFORM, aActive )
 {
 	mModelMatrix = glm::mat4(1.0f);
 	mPosition = glm::vec2(0.0f);

@@ -1,6 +1,7 @@
 #include "CComponentBoxCollider.h"
 
-CComponentBoxCollider::CComponentBoxCollider( const glm::vec2& aCenter, const glm::vec2& aSize, const bool aIsTrigger ) :
+CComponentBoxCollider::CComponentBoxCollider( const glm::vec2& aCenter, const glm::vec2& aSize, const bool aIsTrigger, const bool aActive ) :
+	AComponent( BOX_COLLIDER, aActive ),
 	mCenter( aCenter ),
 	mSize( aSize ),
 	mIsTrigger( aIsTrigger )

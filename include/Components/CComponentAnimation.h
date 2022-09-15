@@ -1,12 +1,13 @@
 #ifndef CCOMPONENT_ANIMATION__H
 #define CCOMPONENT_ANIMATION__H
 
+#include "AComponent.h"
 #include "CAnimationState.h"
 
-class CComponentAnimation
+class CComponentAnimation : public AComponent
 {
 public:
-	CComponentAnimation() = default;
+	CComponentAnimation( const bool aActive = true );
 	~CComponentAnimation() = default;
 
 	void AddAnimationState();
