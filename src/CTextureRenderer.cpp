@@ -15,22 +15,7 @@ CTextureRenderer::CTextureRenderer( const std::string& aTexturePath ) :
 	UpdateVerticesData();
 }
 
-unsigned int CTextureRenderer::GetTextureId() const
-{
-	return mTexture->GetId();
-}
-
-float CTextureRenderer::GetTextureWidth() const
-{
-	return mTexture->GetWidth();
-}
-
-float CTextureRenderer::GetTextureHeight() const
-{
-	return mTexture->GetHeight();
-}
-
-bool CTextureRenderer::HasTexture() const
+const CTexture* CTextureRenderer::GetTexture() const
 {
 	return mTexture;
 }
@@ -59,10 +44,11 @@ bool CTextureRenderer::AttachTexture( const std::string& aTexturePath )
 
 void CTextureRenderer::UpdateVerticesData()
 {
-	const float ratio = GetTextureWidth() > GetTextureHeight() ? GetTextureHeight()/GetTextureWidth() : GetTextureWidth()/GetTextureHeight();
-	glm::vec2 pos = GetTextureWidth() > GetTextureHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
+	const float ratio = mTexture->GetWidth() > mTexture->GetHeight() ?
+			mTexture->GetHeight()/mTexture->GetWidth() : mTexture->GetWidth()/mTexture->GetHeight();
+	glm::vec2 pos = mTexture->GetWidth() > mTexture->GetHeight() ? glm::vec2( 0.5f, ratio*0.5f ) : glm::vec2( ratio*0.5f, 0.5f );
 
-	const auto proportionalSize = GetTextureWidth()*GetTextureHeight()/MAX_TEXTURE_SIZE;
+	const auto proportionalSize = mTexture->GetWidth()*mTexture->GetHeight()/MAX_TEXTURE_SIZE;
 	mScaleDeviation = glm::pow( proportionalSize, 0.5f );
 	pos.x *= mScaleDeviation;
 	pos.y *= mScaleDeviation;
@@ -95,7 +81,7 @@ void CTextureRenderer::Render() const
 	if( !mTexture )
 		return;
 
-	glBindTexture( GL_TEXTURE_2D, GetTextureId() );
+	glBindTexture( GL_TEXTURE_2D, mTexture->GetId() );
 
 	glBindVertexArray( mVAO );
 	glDrawArrays( GL_TRIANGLES, 0, 6 );

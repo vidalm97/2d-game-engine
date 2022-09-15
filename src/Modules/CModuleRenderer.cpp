@@ -157,7 +157,7 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 		if( animation && animation->HasAnimationStates() )
 		{
 			auto& animationState = animation->GetCurrentAnimationState();
-			if( animationState.HasSprites() && animationState.GetCurrentSprite().HasTexture() )
+			if( animationState.HasSprites() && animationState.GetCurrentSprite().GetTexture() )
 			{
 				animationState.AddTime( App->mTimer->GetDeltaTime() );
 				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->mModelMatrix[0][0] );

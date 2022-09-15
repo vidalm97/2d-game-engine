@@ -18,7 +18,6 @@ public:
 	~CComponentRenderer() = default;
 
 	bool AttachTexture( const std::string& aTexturePath );
-	void UpdateVerticesData();
 	void RenderTexture() const;
 	bool HasTexture() const;
 

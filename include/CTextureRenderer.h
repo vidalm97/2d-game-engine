@@ -13,24 +13,23 @@ public:
 	CTextureRenderer( const std::string& aTexturePath );
 	~CTextureRenderer() = default;
 
-	unsigned int GetTextureId() const;
-	float GetTextureWidth() const;
-	float GetTextureHeight() const;
+	const CTexture* GetTexture() const;
 	const std::string& GetTexturePath() const;
 	const float GetScaleDeviation() const;
 
-	bool HasTexture() const;
 	bool AttachTexture( const std::string& aTexturePath );
-	void UpdateVerticesData();
 	void Render() const;
 
 private:
-	std::vector<float> mVertices;
+	void UpdateVerticesData();
+
 	CTexture* mTexture;
 	std::string mTexturePath;
+	float mScaleDeviation;
+
+	std::vector<float> mVertices;
 	unsigned int mVBO;
 	unsigned int mVAO;
-	float mScaleDeviation;
 };
 
 #endif
