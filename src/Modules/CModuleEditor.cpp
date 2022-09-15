@@ -435,15 +435,15 @@ void CModuleEditor::RenderAnimationPanel()
 		int spriteCount = 0;
 		for( auto& sprite : animationState.GetSprites() )
 		{
-			if( sprite.first.HasTexture() )
+			if( sprite.first.GetTexture() )
 			{
-				const auto aspectRatio = sprite.first.GetTextureWidth()/sprite.first.GetTextureHeight();
+				const auto aspectRatio = sprite.first.GetTexture()->GetWidth()/sprite.first.GetTexture()->GetHeight();
 				auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
 						std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
 				size /= 2;
 
 				ImGui::Text( "Sprite" );
-				ImGui::Image( (void*)(intptr_t)sprite.first.GetTextureId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ),
+				ImGui::Image( (void*)(intptr_t)sprite.first.GetTexture()->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ),
 						ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
 			}
 			else

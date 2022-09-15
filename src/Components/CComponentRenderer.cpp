@@ -1,6 +1,7 @@
 #include "CComponentRenderer.h"
 
 #include "CApplication.h"
+#include "CTexture.h"
 #include "CTextureRenderer.h"
 #include "Modules/CModuleResourceManager.h"
 
@@ -28,24 +29,19 @@ bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 	return true;
 }
 
-void CComponentRenderer::UpdateVerticesData()
-{
-	mTextureRenderer->UpdateVerticesData();
-}
-
 unsigned int CComponentRenderer::GetTextureId() const
 {
-	return mTextureRenderer->GetTextureId();
+	return mTextureRenderer->GetTexture()->GetId();
 }
 
 float CComponentRenderer::GetTextureWidth() const
 {
-	return mTextureRenderer->GetTextureWidth();
+	return mTextureRenderer->GetTexture()->GetWidth();
 }
 
 float CComponentRenderer::GetTextureHeight() const
 {
-	return mTextureRenderer->GetTextureHeight();
+	return mTextureRenderer->GetTexture()->GetHeight();
 }
 
 const float CComponentRenderer::GetTextureScaleDeviation() const
