@@ -133,8 +133,8 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
 	glUseProgram( aShaderProgram );
 
-	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "view" ), 1, GL_FALSE, &aCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "view" ), 1, GL_FALSE, &aCamera->GetViewMatrix()[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->GetProjectionMatrix()[0][0] );
 
 	for( const auto& gameObject : mGameObjects )
 	{
@@ -285,8 +285,8 @@ void CModuleRenderer::RenderQuad( const glm::vec2& aCenter, const glm::vec2& aSi
 	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
 
 	glUseProgram( mGridShaderProgram );
-	glUniformMatrix4fv( glGetUniformLocation( mGridShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mGridShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mGridShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mGridShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniform3f( glGetUniformLocation( mGridShaderProgram, "color" ), 0.0f, 1.0f, 0.0f );
 
 	glBindVertexArray( VAO );
@@ -304,8 +304,8 @@ void CModuleRenderer::RenderGizmo()
 	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
 	glUseProgram( mShaderProgram );
 
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mViewMatrix[0][0] );
-	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->mProjectionMatrix[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
+	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE, &mGizmo.mXAxis.mComponentTransform->mModelMatrix[0][0] );
 
 	mGizmo.mXAxis.mComponentRenderer->RenderTexture();
