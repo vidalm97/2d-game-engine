@@ -1,5 +1,10 @@
 #include "CComponentAnimation.h"
 
+CComponentAnimation::CComponentAnimation( const bool aActive ) :
+	AComponent( ANIMATION, aActive )
+{
+}
+
 void CComponentAnimation::AddAnimationState()
 {
 	mAnimationStates.push_back( CAnimationState() );

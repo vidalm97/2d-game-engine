@@ -9,7 +9,13 @@
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 
-CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor ) :
+CComponentRenderer::CComponentRenderer( const bool aActive ) :
+	AComponent( RENDERER, aActive )
+{
+}
+
+CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor, const bool aActive ) :
+	AComponent( RENDERER, aActive ),
 	mBackColor( aBackColor )
 {
 	AttachTexture( aTexturePath );

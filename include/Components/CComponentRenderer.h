@@ -1,6 +1,7 @@
 #ifndef CCOMPONENTRENDERER__H
 #define CCOMPONENTRENDERER__H
 
+#include "AComponent.h"
 #include "CSerializator.h"
 
 #include "glm.hpp"
@@ -9,11 +10,11 @@
 
 class CTextureRenderer;
 
-class CComponentRenderer
+class CComponentRenderer : public AComponent
 {
 public:
-	CComponentRenderer() = default;
-	CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor );
+	CComponentRenderer( const bool aActive = true );
+	CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor, const bool aActive = true );
 	~CComponentRenderer() = default;
 
 	bool AttachTexture( const std::string& aTexturePath );
