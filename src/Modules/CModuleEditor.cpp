@@ -162,7 +162,7 @@ void CModuleEditor::RenderHierarchyPanel()
 		if ( ImGui::Selectable( App->mRenderer->mGameObjects[i].GetName().c_str() , mSelectedGO == i ) )
 		{
 			mSelectedGO = i;
-			App->mRenderer->mGizmo.SetPosition( static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
+			App->mRenderer->mGizmo.SetPosition( static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->GetPosition() );
 		}
 
 	ImGui::End();
@@ -182,14 +182,14 @@ void CModuleEditor::RenderGameObjectPanel()
 	if( ImGui::CollapsingHeader( "Transform", ImGuiTreeNodeFlags_DefaultOpen ) )
 	{
 		const auto transform = static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<TRANSFORM>());
-		if( ImGui::DragFloat2("Position", (float*)&transform->mPosition.x, 0.1f, -200.0f, 200.0f, "%0.1f") )
+		if( ImGui::DragFloat2("Position", (float*)&transform->GetPosition().x, 0.1f, -200.0f, 200.0f, "%0.1f") )
 		{
 			transform->UpdateModelMatrix();
-			App->mRenderer->mGizmo.SetPosition( transform->mPosition );
+			App->mRenderer->mGizmo.SetPosition( transform->GetPosition() );
 		}
-		if( ImGui::DragFloat2("Scale", (float*)&transform->mScale.x, 0.1f, 0.1f, 200.0f, "%0.1f") )
+		if( ImGui::DragFloat2("Scale", (float*)&transform->GetScale().x, 0.1f, 0.1f, 200.0f, "%0.1f") )
 			transform->UpdateModelMatrix();
-		if( ImGui::DragFloat("Rotation", (float*)&transform->mRotation, 0.1f, -180.0f, 180.0f, "%0.1f") )
+		if( ImGui::DragFloat("Rotation", (float*)&transform->GetRotation(), 0.1f, -180.0f, 180.0f, "%0.1f") )
 			transform->UpdateModelMatrix();
 	}
 
@@ -381,10 +381,10 @@ void CModuleEditor::RenderAddComponentPanel()
 					{
 						const auto transform = static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<TRANSFORM>());
 						const auto renderer = static_cast<CComponentRenderer*>(App->mRenderer->mGameObjects[mSelectedGO].GetComponent<RENDERER>());
-						App->mRenderer->mGameObjects[mSelectedGO].PushComponent<CComponentBoxCollider>( CComponentBoxCollider( transform->mPosition,
+						App->mRenderer->mGameObjects[mSelectedGO].PushComponent<CComponentBoxCollider>( CComponentBoxCollider( transform->GetPosition(),
 								renderer && renderer->HasTexture() ?
-								glm::vec2( renderer->GetTextureScaleDeviation()*transform->mScale.x*renderer->GetTextureWidth()/renderer->GetTextureHeight(),
-								renderer->GetTextureScaleDeviation()*transform->mScale.y ) : glm::vec2( 10, 10 ),  false ) );
+								glm::vec2( renderer->GetTextureScaleDeviation()*transform->GetScale().x*renderer->GetTextureWidth()/renderer->GetTextureHeight(),
+								renderer->GetTextureScaleDeviation()*transform->GetScale().y ) : glm::vec2( 10, 10 ),  false ) );
 						break;
 					}
 					case 1:

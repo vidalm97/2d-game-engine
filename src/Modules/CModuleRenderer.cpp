@@ -124,7 +124,7 @@ bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPat
 
 	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
 
-	mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
+	mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->GetPosition() );
 
 	return true;
 }
@@ -148,7 +148,7 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 		if( renderer && renderer->HasTexture() )
 		{
 
-			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->mModelMatrix[0][0] );
+			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->GetModelMatrix()[0][0] );
 
 			renderer->RenderTexture();
 		}
@@ -160,7 +160,7 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 			if( animationState.HasSprites() && animationState.GetCurrentSprite().GetTexture() )
 			{
 				animationState.AddTime( App->mTimer->GetDeltaTime() );
-				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->mModelMatrix[0][0] );
+				glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->GetModelMatrix()[0][0] );
 
 				animationState.RenderCurrentSprite();
 			}
@@ -247,7 +247,7 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
 		{
 			App->mEditor->SetSelectedGO(i);
-			mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->mPosition );
+			mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->GetPosition() );
 		}
 	}
 
@@ -314,11 +314,11 @@ void CModuleRenderer::RenderGizmo()
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.GetXAxis().GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
+			&static_cast<CComponentTransform*>(mGizmo.GetXAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
 
 	static_cast<CComponentRenderer*>(mGizmo.GetXAxis().GetComponent<RENDERER>())->RenderTexture();
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.GetYAxis().GetComponent<TRANSFORM>())->mModelMatrix[0][0] );
+			&static_cast<CComponentTransform*>(mGizmo.GetYAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
 	static_cast<CComponentRenderer*>(mGizmo.GetYAxis().GetComponent<RENDERER>())->RenderTexture();
 
 	glUseProgram( 0 );

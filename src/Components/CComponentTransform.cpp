@@ -3,12 +3,47 @@
 #include "gtc/matrix_transform.hpp"
 
 CComponentTransform::CComponentTransform( const bool aActive ) :
-	AComponent( TRANSFORM, aActive )
+	AComponent( TRANSFORM, aActive ),
+	mModelMatrix( glm::mat4(1.0f) ),
+	mPosition( glm::vec2(0.0f) ),
+	mScale( glm::vec2(1.0f) ),
+	mRotation( 0.0f )
 {
-	mModelMatrix = glm::mat4(1.0f);
-	mPosition = glm::vec2(0.0f);
-	mScale = glm::vec2(1.0f);
-	mRotation = 0.0f;
+}
+
+const glm::vec2& CComponentTransform::GetPosition() const
+{
+	return mPosition;
+}
+
+const glm::vec2& CComponentTransform::GetScale() const
+{
+	return mScale;
+}
+
+const float& CComponentTransform::GetRotation() const
+{
+	return mRotation;
+}
+
+void CComponentTransform::SetPosition( const glm::vec2& aPosition )
+{
+	mPosition = aPosition;
+}
+
+void CComponentTransform::SetScale( const glm::vec2& aScale )
+{
+	mScale = aScale;
+}
+
+void CComponentTransform::SetRotation( const float aRotation )
+{
+	mRotation = aRotation;
+}
+
+const glm::mat4& CComponentTransform::GetModelMatrix() const
+{
+	return mModelMatrix;
 }
 
 void CComponentTransform::UpdateModelMatrix()
@@ -20,8 +55,8 @@ void CComponentTransform::UpdateModelMatrix()
 	mModelMatrix[3][1] = mPosition.y;
 	mModelMatrix[0][0] = mScale.x*cos;
 	mModelMatrix[1][1] = mScale.y*cos;
-	mModelMatrix[0][1] = -sin;
-	mModelMatrix[1][0] = sin;
+	mModelMatrix[0][1] = mScale.x*sin;
+	mModelMatrix[1][0] = mScale.y*(-sin);
 }
 
 void CComponentTransform::Serialize( CSerializator::json& aJson ) const

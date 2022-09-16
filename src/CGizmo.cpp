@@ -34,17 +34,17 @@ void CGizmo::SetActive( const bool aIsActive )
 
 void CGizmo::SetPosition( const glm::vec2& aPosition )
 {
-	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->mPosition = aPosition + mXOffset;
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->SetPosition( aPosition + mXOffset );
 	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
-	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->mPosition = aPosition + mYOffset;
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->SetPosition( aPosition + mYOffset );
 	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
 }
 
 void CGizmo::SetSize( const glm::vec2& aSize )
 {
-	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->mScale = aSize;
+	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->SetScale( aSize );
 	static_cast<CComponentTransform*>(mXAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
-	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->mScale = aSize;
+	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->SetScale( aSize );
 	static_cast<CComponentTransform*>(mYAxis.GetComponent<TRANSFORM>())->UpdateModelMatrix();
 	mXOffset *= aSize;
 	mYOffset *= aSize;
