@@ -183,32 +183,8 @@ void CModuleEditor::RenderGameObjectPanel()
 			transform->UpdateModelMatrix();
 	}
 
-	auto* renderer = static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>());
-	if( renderer && renderer->HasTexture() )
-	{
-		const auto aspectRatio = renderer->GetTextureWidth()/renderer->GetTextureHeight();
-		auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
-				std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
-		size /= 2;
-
-		ImGui::Dummy( ImVec2( 0, 1 ) );
-		if( ImGui::CollapsingHeader( "Sprite renderer", ImGuiTreeNodeFlags_DefaultOpen ) )
-		{
-			ImGui::Text( "Dimensions = %d x %d", int(renderer->GetTextureWidth()), int(renderer->GetTextureHeight()) );
-			ImGui::Image( (void*)(intptr_t)renderer->GetTextureId(),
-					ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
-		}
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
-			{
-				auto path = (const char*)payload->Data;
-				renderer->AttachTexture(path);
-			}
-			ImGui::EndDragDropTarget();
-		}
-	}
+	if( static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>()) )
+		RenderRendererPanel();
 
 	if( static_cast<CComponentAnimation*>(App->mSceneManager->GetSelectedGO().GetComponent<ANIMATION>()) )
 	{
@@ -359,15 +335,21 @@ void CModuleEditor::RenderResourcePanel()
 
 void CModuleEditor::RenderAddComponentPanel()
 {
-	std::vector<std::string> items = { "Box Collider", "Animation" };
+	std::vector<std::string> items = { "Renderer", "Box Collider", "Animation" };
 
-	if ( ImGui::BeginCombo("Add Component", 0, ImGuiComboFlags_NoPreview) )
+	if ( ImGui::BeginCombo("##Add Component", "Add Component", ImGuiComboFlags_NoArrowButton ) )
 	{
 		for ( int n = 0; n < items.size(); ++n )
 			if (ImGui::Selectable(items[n].c_str() ) )
 				switch( n )
 				{
 					case 0:
+					{
+						App->mSceneManager->GetSelectedGO().PushComponent<CComponentRenderer>(
+								CComponentRenderer( App->mSceneManager->GetSelectedGO().GetID() ) );
+						break;
+					}
+					case 1:
 					{
 						auto* transform = static_cast<CComponentTransform*>(App->mSceneManager->GetSelectedGO().GetComponent<TRANSFORM>());
 						auto* renderer = static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>());
@@ -377,12 +359,47 @@ void CModuleEditor::RenderAddComponentPanel()
 								renderer->GetTextureScaleDeviation()*transform->GetScale().y ) : glm::vec2( 10, 10 ),  false ) );
 						break;
 					}
-					case 1:
+					case 2:
 						App->mSceneManager->GetSelectedGO().PushComponent<CComponentAnimation>( CComponentAnimation() );
 						break;
 				}
 
 		ImGui::EndCombo();
+	}
+}
+
+void CModuleEditor::RenderRendererPanel()
+{
+	if( ImGui::CollapsingHeader( "Sprite renderer", ImGuiTreeNodeFlags_DefaultOpen ) )
+	{
+		auto renderer = static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>());
+		if( renderer->HasTexture() )
+		{
+			const auto aspectRatio = renderer->GetTextureWidth()/renderer->GetTextureHeight();
+			auto size = aspectRatio > 1.0f ? std::min( ImGui::GetWindowSize().x/aspectRatio, ImGui::GetWindowSize().y ) :
+					std::min( ImGui::GetWindowSize().x, ImGui::GetWindowSize().y/aspectRatio );
+			size /= 2;
+
+			ImGui::Dummy( ImVec2( 0, 1 ) );
+
+			ImGui::Text( "Dimensions = %d x %d", int(renderer->GetTextureWidth()), int(renderer->GetTextureHeight()) );
+			ImGui::Image( (void*)(intptr_t)renderer->GetTextureId(),
+					ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ), ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ), ImVec4( 0.5f, 0.5f, 0.5f, 1.0f ) );
+		}
+		else
+		{
+			ImGui::Text("Drop Texture");
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource_panel"))
+			{
+				auto path = (const char*)payload->Data;
+				renderer->AttachTexture(path);
+			}
+			ImGui::EndDragDropTarget();
+		}
 	}
 }
 

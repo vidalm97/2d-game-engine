@@ -20,7 +20,8 @@ const glm::vec3 GenerateUniqueColor( unsigned int aUniqueId )
 
 CComponentRenderer::CComponentRenderer( unsigned int aGOID, const bool aActive ) :
 	AComponent( RENDERER, aActive ),
-	mBackColor( GenerateUniqueColor( aGOID ) )
+	mBackColor( GenerateUniqueColor( aGOID ) ),
+	mTextureRenderer( nullptr )
 {
 }
 
@@ -38,7 +39,10 @@ std::unique_ptr<AComponent> CComponentRenderer::Clone() const
 
 bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )
 {
-	mTextureRenderer = new CTextureRenderer( aTexturePath );
+	if( !mTextureRenderer )
+		mTextureRenderer = new CTextureRenderer( aTexturePath );
+	else
+		mTextureRenderer->AttachTexture( aTexturePath );
 
 	return true;
 }
@@ -70,7 +74,7 @@ const glm::vec3& CComponentRenderer::GetBackColor() const
 
 bool CComponentRenderer::HasTexture() const
 {
-	return mTextureRenderer != nullptr;
+	return mTextureRenderer && mTextureRenderer->GetTexture();
 }
 
 void CComponentRenderer::RenderTexture() const
