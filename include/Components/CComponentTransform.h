@@ -12,6 +12,8 @@ public:
 	CComponentTransform( const bool aActive = true );
 	~CComponentTransform() = default;
 
+	std::unique_ptr<AComponent> Clone() const override;
+
 	const glm::vec2& GetPosition() const;
 	const glm::vec2& GetScale() const;
 	const float& GetRotation() const;

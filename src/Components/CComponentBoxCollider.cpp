@@ -8,6 +8,11 @@ CComponentBoxCollider::CComponentBoxCollider( const glm::vec2& aCenter, const gl
 {
 }
 
+std::unique_ptr<AComponent> CComponentBoxCollider::Clone() const
+{
+	return std::unique_ptr<AComponent>(new CComponentBoxCollider(*this));
+}
+
 const glm::vec2& CComponentBoxCollider::GetCenter() const
 {
 	return mCenter;

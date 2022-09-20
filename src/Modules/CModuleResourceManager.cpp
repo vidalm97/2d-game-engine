@@ -4,7 +4,7 @@
 #include "CComponentTransform.h"
 #include "CGizmo.h"
 #include "CTexture.h"
-#include "Modules/CModuleRenderer.h"
+#include "Modules/CModuleSceneManager.h"
 #include "Modules/CModuleEditor.h"
 
 #include "glad/glad.h"
@@ -60,14 +60,15 @@ CTexture* CModuleResourceManager::CreateTexture( const std::string& aTexturePath
 
 void CModuleResourceManager::SerializeScene() const
 {
-	mSerializator.SerializeTo( "../resources/scenes/scene.json", App->mRenderer->mGameObjects );
+	mSerializator.SerializeTo( "../resources/scenes/scene.json", App->mSceneManager->GetGameObjects() );
 }
 
 void CModuleResourceManager::DeserializeScene() const
 {
-	App->mRenderer->mGameObjects.clear();
-	mSerializator.DeserializeFrom( "../resources/scenes/scene.json", App->mRenderer->mGameObjects );
+	App->mSceneManager->ClearGameObjects();
 
-	App->mEditor->SetSelectedGO( 0 );
-	App->mRenderer->mGizmo.SetPosition( static_cast<CComponentTransform*>(App->mRenderer->mGameObjects[0].GetComponent<TRANSFORM>())->GetPosition() );
+	std::vector<CGameObject> gameObjects;
+	mSerializator.DeserializeFrom( "../resources/scenes/scene.json", gameObjects );
+	for( const auto& gameObject : gameObjects )
+		App->mSceneManager->AddGameObject( gameObject );
 }

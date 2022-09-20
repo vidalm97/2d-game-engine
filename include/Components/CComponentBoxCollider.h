@@ -11,6 +11,8 @@ public:
 	CComponentBoxCollider( const glm::vec2& aCenter, const glm::vec2& aSize, const bool aIsTrigger, const bool aActive = true );
 	~CComponentBoxCollider() = default;
 
+	std::unique_ptr<AComponent> Clone() const override;
+
 	const glm::vec2& GetCenter() const;
 	const glm::vec2& GetSize() const;
 	const bool IsTrigger() const;

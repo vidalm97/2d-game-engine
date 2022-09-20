@@ -10,16 +10,30 @@
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 
-CComponentRenderer::CComponentRenderer( const bool aActive ) :
-	AComponent( RENDERER, aActive )
+const glm::vec3 GenerateUniqueColor( unsigned int aUniqueId )
+{
+	int r = (aUniqueId & 0x000000FF) >>  0;
+	int g = (aUniqueId & 0x0000FF00) >>  8;
+	int b = (aUniqueId & 0x00FF0000) >> 16;
+	return glm::vec3( r, g, b );
+}
+
+CComponentRenderer::CComponentRenderer( unsigned int aGOID, const bool aActive ) :
+	AComponent( RENDERER, aActive ),
+	mBackColor( GenerateUniqueColor( aGOID ) )
 {
 }
 
-CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor, const bool aActive ) :
+CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, unsigned int aGOID, const bool aActive ) :
 	AComponent( RENDERER, aActive ),
-	mBackColor( aBackColor )
+	mBackColor( GenerateUniqueColor( aGOID ) )
 {
 	AttachTexture( aTexturePath );
+}
+
+std::unique_ptr<AComponent> CComponentRenderer::Clone() const
+{
+	return std::unique_ptr<AComponent>(new CComponentRenderer(*this));
 }
 
 bool CComponentRenderer::AttachTexture( const std::string& aTexturePath )

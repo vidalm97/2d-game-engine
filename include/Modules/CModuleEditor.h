@@ -21,9 +21,6 @@ public:
 	bool PreUpdate() override;
 	bool Clear() override;
 
-	int GetSelectedGO() const;
-	void SetSelectedGO( const int aIndex );
-
 private:
 	void SetUpDockingSpace();
 	void RenderSerializationPanel();
@@ -37,7 +34,6 @@ private:
 	void RenderBoxColliderPanel();
 	void RenderAnimationPanel();
 
-	int mSelectedGO = -1;
 	bool mResizedScenePanel = false;
 	bool mResizedGamePanel = false;
 	bool mShowScene = true;

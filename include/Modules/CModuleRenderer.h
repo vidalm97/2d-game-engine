@@ -2,8 +2,6 @@
 #define CMODULERENDERER__H
 
 #include "AModule.h"
-#include "CGameObject.h"
-#include "CGizmo.h"
 
 #include "glm.hpp"
 
@@ -25,7 +23,6 @@ public:
 	bool Update() override;
 	bool Clear() override;
 
-	bool GenerateGameObjectWithTexture( const std::string& aTextPath );
 	void RenderGameObjects( const int& aShaderProgram, const int& aFramebuffer, CCamera* aCamera ) const;
 
 	void RenderColliders();
@@ -49,7 +46,6 @@ public:
 	unsigned int mBackFramebufferTexture;
 
 	void CheckSelectedGO( int x, int y );
-	std::vector<CGameObject> mGameObjects;
 
 	float mSceneWidth = 1.0f;
 	float mSceneHeight = 1.0f;
@@ -58,11 +54,8 @@ public:
 	float mSceneViewportYPos = 0.0f;
 	void ResizeFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
 
-	CGizmo mGizmo;
 	void RenderGizmo();
 private:
-	unsigned int mNextGOId = 0;
-
 	bool InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
 	void ClearFrameBuffer( const unsigned int aFramebuffer, const glm::vec4& aColor );
 
