@@ -31,6 +31,7 @@ private:
 	void RenderGameControlPanel();
 	void RenderResourcePanel();
 	void RenderAddComponentPanel();
+	void RenderRendererPanel();
 	void RenderBoxColliderPanel();
 	void RenderAnimationPanel();
 
