@@ -5,10 +5,15 @@
 CComponentTransform::CComponentTransform( const bool aActive ) :
 	AComponent( TRANSFORM, aActive ),
 	mModelMatrix( glm::mat4(1.0f) ),
-	mPosition( glm::vec2(0.0f) ),
-	mScale( glm::vec2(1.0f) ),
+	mPosition( glm::vec2(0.0f,0.0f) ),
+	mScale( glm::vec2(1.0f,1.0f) ),
 	mRotation( 0.0f )
 {
+}
+
+std::unique_ptr<AComponent> CComponentTransform::Clone() const
+{
+	return std::unique_ptr<AComponent>(new CComponentTransform(*this));
 }
 
 const glm::vec2& CComponentTransform::GetPosition() const

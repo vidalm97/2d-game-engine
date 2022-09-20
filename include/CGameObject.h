@@ -15,8 +15,7 @@ class CGameObject
 public:
 	CGameObject( const unsigned int aID, const std::string& aName );
 	~CGameObject() = default;
-	CGameObject(const CGameObject&) = delete;
-	CGameObject(CGameObject&&) = default;
+	CGameObject( const CGameObject& );
 
 	const std::string& GetName() const;
 	void SetName( const std::string& aName );

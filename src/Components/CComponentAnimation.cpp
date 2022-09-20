@@ -1,13 +1,20 @@
 #include "CComponentAnimation.h"
 
 CComponentAnimation::CComponentAnimation( const bool aActive ) :
-	AComponent( ANIMATION, aActive )
+	AComponent( ANIMATION, aActive ),
+	mCurrentAnimationState(-1)
 {
+}
+
+std::unique_ptr<AComponent> CComponentAnimation::Clone() const
+{
+	return std::unique_ptr<AComponent>(new CComponentAnimation(*this));
 }
 
 void CComponentAnimation::AddAnimationState()
 {
 	mAnimationStates.push_back( CAnimationState() );
+	mCurrentAnimationState = mAnimationStates.size()-1;
 }
 
 std::vector<CAnimationState>& CComponentAnimation::GetAnimationStates()

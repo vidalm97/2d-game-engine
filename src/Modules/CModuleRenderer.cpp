@@ -5,25 +5,23 @@
 #include "CComponentBoxCollider.h"
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
+#include "CGizmo.h"
 #include "Modules/CModuleCamera.h"
 #include "Modules/CModuleEditor.h"
 #include "Modules/CModuleResourceManager.h"
+#include "Modules/CModuleSceneManager.h"
 #include "Modules/CModuleTime.h"
 #include "Modules/CModuleWindow.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-CModuleRenderer::CModuleRenderer() :
-	mGizmo( false )
+CModuleRenderer::CModuleRenderer()
 {
 }
 
 bool CModuleRenderer::Init()
 {
-	mGizmo.AttachAxisTextures( "../engine_resources/icons/greenArrow.png", "../engine_resources/icons/blueArrow.png" );
-	mGizmo.SetSize( glm::vec2( 1.5f, 1.5f ) );
-
 	glEnable( GL_BLEND );
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -54,7 +52,7 @@ bool CModuleRenderer::Update()
 	RenderGameObjects( mShaderProgram, mSceneFramebuffer, App->mCamera->mSceneCamera );
 	RenderGameObjects( mShaderProgram, mGameFramebuffer, App->mCamera->mGameCamera );
 
-	if( App->mEditor->GetSelectedGO() != -1 )
+	if( App->mSceneManager->HasSelectedGO() )
 		RenderGizmo();
 
 	RenderColliders();
@@ -112,23 +110,6 @@ bool CModuleRenderer::CreateShader( unsigned int& aShaderProgram, const char* aV
 	return true;
 }
 
-bool CModuleRenderer::GenerateGameObjectWithTexture( const std::string& aTextPath )
-{
-	const std::string name = "New GameObject" + std::to_string(mGameObjects.size());
-	int r = (++mNextGOId & 0x000000FF) >>  0;
-	int g = (mNextGOId & 0x0000FF00) >>  8;
-	int b = (mNextGOId & 0x00FF0000) >> 16;
-
-	mGameObjects.push_back( CGameObject( mNextGOId, name ) );
-	mGameObjects.back().PushComponent<CComponentRenderer>( CComponentRenderer( aTextPath, glm::vec3( r, g, b ) ) );
-
-	App->mEditor->SetSelectedGO( mGameObjects.size()-1 );
-
-	mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->GetPosition() );
-
-	return true;
-}
-
 void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& aFramebuffer, CCamera* aCamera ) const
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, aFramebuffer );
@@ -137,23 +118,22 @@ void CModuleRenderer::RenderGameObjects( const int& aShaderProgram, const int& a
 	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "view" ), 1, GL_FALSE, &aCamera->GetViewMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( aShaderProgram, "projection" ), 1, GL_FALSE, &aCamera->GetProjectionMatrix()[0][0] );
 
-	for( const auto& gameObject : mGameObjects )
+	for( const auto& gameObject : App->mSceneManager->GetGameObjects() )
 	{
-		const auto renderer = static_cast<CComponentRenderer*>(gameObject.GetComponent<RENDERER>());
-		if( aShaderProgram == mBackShaderProgram )
-			glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), renderer->GetBackColor().x/255.0f,
-					renderer->GetBackColor().y/255.0f, renderer->GetBackColor().z/255.0f );
-
-		const auto transform = static_cast<CComponentTransform*>(gameObject.GetComponent<TRANSFORM>());
+		auto* renderer = static_cast<CComponentRenderer*>(gameObject.GetComponent<RENDERER>());
+		auto* transform = static_cast<CComponentTransform*>(gameObject.GetComponent<TRANSFORM>());
 		if( renderer && renderer->HasTexture() )
 		{
+			if( aShaderProgram == mBackShaderProgram )
+				glUniform3f( glGetUniformLocation( aShaderProgram, "color" ), renderer->GetBackColor().x/255.0f,
+						renderer->GetBackColor().y/255.0f, renderer->GetBackColor().z/255.0f );
 
 			glUniformMatrix4fv( glGetUniformLocation( aShaderProgram,"model" ), 1, GL_FALSE, &transform->GetModelMatrix()[0][0] );
 
 			renderer->RenderTexture();
 		}
 
-		const auto animation = static_cast<CComponentAnimation*>(gameObject.GetComponent<ANIMATION>());
+		auto* animation = static_cast<CComponentAnimation*>(gameObject.GetComponent<ANIMATION>());
 		if( animation && animation->HasAnimationStates() )
 		{
 			auto& animationState = animation->GetCurrentAnimationState();
@@ -238,16 +218,15 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 	glm::vec3 color;
 	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &color);
 
-	for( int i = 0; i < mGameObjects.size(); ++i )
+	for( int i = 0; i < App->mSceneManager->GetGameObjects().size(); ++i )
 	{
-		const auto renderer = static_cast<CComponentRenderer*>(mGameObjects[i].GetComponent<RENDERER>());
+		auto* renderer = static_cast<CComponentRenderer*>(App->mSceneManager->GetGameObjects()[i].GetComponent<RENDERER>());
 		if( !renderer || !renderer->HasTexture() )
 			continue;
 		const glm::vec3& GOColor = renderer->GetBackColor();
 		if( GOColor.x == int(color.x*256) &&  GOColor.y == int(color.y*256) && GOColor.z == int(color.z*256) )
 		{
-			App->mEditor->SetSelectedGO(i);
-			mGizmo.SetPosition( static_cast<CComponentTransform*>(mGameObjects[App->mEditor->GetSelectedGO()].GetComponent<TRANSFORM>())->GetPosition() );
+			App->mSceneManager->SetSelectedGO(i);
 		}
 	}
 
@@ -256,9 +235,9 @@ void CModuleRenderer::CheckSelectedGO( int x, int y )
 
 void CModuleRenderer::RenderColliders()
 {
-	for( const auto& GO : mGameObjects )
+	for( const auto& GO : App->mSceneManager->GetGameObjects() )
 	{
-		const auto boxCollider = static_cast<CComponentBoxCollider*>(GO.GetComponent<BOX_COLLIDER>());
+		auto* boxCollider = static_cast<CComponentBoxCollider*>(GO.GetComponent<BOX_COLLIDER>());
 		if( boxCollider )
 			RenderQuad( boxCollider->GetCenter(), boxCollider->GetSize() );
 	}
@@ -311,15 +290,17 @@ void CModuleRenderer::RenderGizmo()
 	glBindFramebuffer( GL_FRAMEBUFFER, mSceneFramebuffer );
 	glUseProgram( mShaderProgram );
 
+	const auto& gizmo = App->mSceneManager->GetGizmo();
+
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "view" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetViewMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "projection" ), 1, GL_FALSE, &App->mCamera->mSceneCamera->GetProjectionMatrix()[0][0] );
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.GetXAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
+			&static_cast<CComponentTransform*>(gizmo.GetXAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
 
-	static_cast<CComponentRenderer*>(mGizmo.GetXAxis().GetComponent<RENDERER>())->RenderTexture();
+	static_cast<CComponentRenderer*>(gizmo.GetXAxis().GetComponent<RENDERER>())->RenderTexture();
 	glUniformMatrix4fv( glGetUniformLocation( mShaderProgram, "model" ), 1, GL_FALSE,
-			&static_cast<CComponentTransform*>(mGizmo.GetYAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
-	static_cast<CComponentRenderer*>(mGizmo.GetYAxis().GetComponent<RENDERER>())->RenderTexture();
+			&static_cast<CComponentTransform*>(gizmo.GetYAxis().GetComponent<TRANSFORM>())->GetModelMatrix()[0][0] );
+	static_cast<CComponentRenderer*>(gizmo.GetYAxis().GetComponent<RENDERER>())->RenderTexture();
 
 	glUseProgram( 0 );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );

@@ -10,6 +10,8 @@ public:
 	CComponentAnimation( const bool aActive = true );
 	~CComponentAnimation() = default;
 
+	std::unique_ptr<AComponent> Clone() const override;
+
 	void AddAnimationState();
 	std::vector<CAnimationState>& GetAnimationStates();
 	CAnimationState& GetCurrentAnimationState();

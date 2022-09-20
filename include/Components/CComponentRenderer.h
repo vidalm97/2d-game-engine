@@ -13,9 +13,11 @@ class CTextureRenderer;
 class CComponentRenderer : public AComponent
 {
 public:
-	CComponentRenderer( const bool aActive = true );
-	CComponentRenderer( const std::string& aTexturePath, const glm::vec3& aBackColor, const bool aActive = true );
+	CComponentRenderer( unsigned int aGOID, const bool aActive = true );
+	CComponentRenderer( const std::string& aTexturePath, unsigned int aGOID, const bool aActive = true );
 	~CComponentRenderer() = default;
+
+	std::unique_ptr<AComponent> Clone() const override;
 
 	bool AttachTexture( const std::string& aTexturePath );
 	void RenderTexture() const;

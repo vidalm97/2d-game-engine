@@ -9,9 +9,16 @@ CGameObject::CGameObject( const unsigned int aID, const std::string& aName ) :
 	mID( aID ),
 	mName( aName )
 {
-	mComponents.push_back( std::make_unique<CComponentTransform>( CComponentTransform() ) );
+	mComponents.push_back( std::make_unique<CComponentTransform>() );
 }
 
+CGameObject::CGameObject( const CGameObject& aGameObject ) :
+	mID( aGameObject.mID ),
+	mName( aGameObject.mName )
+{
+	for( const auto& component : aGameObject.mComponents )
+		mComponents.push_back( component->Clone() );
+}
 
 const std::string& CGameObject::GetName() const
 {
@@ -49,7 +56,7 @@ void CGameObject::Deserialize( const CSerializator::json& aJson )
 
 	if( aJson.contains("Renderer") )
 	{
-		PushComponent<CComponentRenderer>( CComponentRenderer() );
+		PushComponent<CComponentRenderer>( CComponentRenderer(mID) );
 		static_cast<CComponentRenderer*>(GetComponent<RENDERER>())->Deserialize( aJson.at("Renderer") );
 	}
 }

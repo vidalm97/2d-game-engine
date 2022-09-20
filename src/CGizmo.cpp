@@ -8,8 +8,8 @@ CGizmo::CGizmo( const bool aIsActive ) :
 	mXAxis( 0, "XAxisGizmo" ),
 	mYAxis( 0, "YAxisGizmo" )
 {
-	mXAxis.PushComponent<CComponentRenderer>( CComponentRenderer() );
-	mYAxis.PushComponent<CComponentRenderer>( CComponentRenderer() );
+	mXAxis.PushComponent<CComponentRenderer>( CComponentRenderer(0) );
+	mYAxis.PushComponent<CComponentRenderer>( CComponentRenderer(0) );
 	mXOffset =  glm::vec2( 0.5f, 0.0f );
 	mYOffset =  glm::vec2( 0.0f, 0.5f );
 }
