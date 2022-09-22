@@ -16,6 +16,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include "IconsFontAwesome.h"
 
 CModuleEditor::CModuleEditor()
 {
@@ -24,20 +25,21 @@ CModuleEditor::CModuleEditor()
 
 bool CModuleEditor::Init()
 {
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui::StyleColorsDark();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.Fonts->AddFontDefault();
+
+	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+	io.Fonts->AddFontFromFileTTF( "../engine_resources/icons/font.otf", 12.0f, &icons_config, icons_ranges );
 
 	ImGui_ImplGlfw_InitForOpenGL( App->mWindow->mWindow, true );
 	ImGui_ImplOpenGL3_Init( "#version 130" );
-
-	mPlayIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/play.png" );
-	mPauseIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/pause.png" );
-	mStopIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/stop.png" );
-
-	mDirectoryIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/directory.png" );
-	mFileIcon = App->mResourceManager->CreateTexture( "../engine_resources/icons/file.png" );
 
 	return true;
 }
@@ -86,13 +88,6 @@ bool CModuleEditor::Clear()
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
-	delete mPlayIcon;
-	delete mPauseIcon;
-	delete mStopIcon;
-
-	delete mDirectoryIcon;
-	delete mFileIcon;
-
 	return true;
 }
 
@@ -123,9 +118,9 @@ void CModuleEditor::RenderSerializationPanel()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollWithMouse;
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 
-	ImGui::Begin( "##Serialization panel", nullptr, windowFlags );
+	ImGui::Begin( ICON_FA_COMPACT_DISC " Scene Loader", nullptr, windowFlags );
 
 	ImGui::Dummy(ImVec2(0.0f,3.0f));
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 20.0f );
@@ -142,7 +137,7 @@ void CModuleEditor::RenderSerializationPanel()
 
 void CModuleEditor::RenderHierarchyPanel()
 {
-	ImGui::Begin( "Hierarchy" );
+	ImGui::Begin( ICON_FA_LIST " Hierarchy", nullptr, ImGuiWindowFlags_NoCollapse );
 
 	if( ImGui::Button( "Create Game Object" ) )
 	{
@@ -150,17 +145,17 @@ void CModuleEditor::RenderHierarchyPanel()
 	}
 
 	for( int i = 0; i < App->mSceneManager->GetGameObjects().size(); ++i )
-		if ( ImGui::Selectable( App->mSceneManager->GetGameObjects()[i].GetName().c_str(), App->mSceneManager->mSelectedGOIndex == i ) )
-		{
+	{
+		const std::string label = ICON_FA_CUBE + std::string(" ") + App->mSceneManager->GetGameObjects()[i].GetName();
+		if ( ImGui::Selectable( label.c_str(), App->mSceneManager->mSelectedGOIndex == i ) )
 			App->mSceneManager->SetSelectedGO( i );
-		}
-
+	}
 	ImGui::End();
 }
 
 void CModuleEditor::RenderGameObjectPanel()
 {
-	ImGui::Begin( "Inspector" );
+	ImGui::Begin( ICON_FA_INFO_CIRCLE " Inspector" );
 
 	if( !App->mSceneManager->HasSelectedGO() )
 	{
@@ -169,7 +164,7 @@ void CModuleEditor::RenderGameObjectPanel()
 	}
 
 	ImGui::Dummy( ImVec2( 0, 1 ) );
-	if( ImGui::CollapsingHeader( "Transform", ImGuiTreeNodeFlags_DefaultOpen ) )
+	if( ImGui::CollapsingHeader( ICON_FA_ADJUST " Transform", ImGuiTreeNodeFlags_DefaultOpen ) )
 	{
 		auto* transform = static_cast<CComponentTransform*>(App->mSceneManager->GetSelectedGO().GetComponent<TRANSFORM>());
 		if( ImGui::DragFloat2("Position", (float*)&transform->GetPosition().x, 0.1f, -200.0f, 200.0f, "%0.1f") )
@@ -184,7 +179,10 @@ void CModuleEditor::RenderGameObjectPanel()
 	}
 
 	if( static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>()) )
+	{
+		ImGui::Dummy( ImVec2( 0, 1 ) );
 		RenderRendererPanel();
+	}
 
 	if( static_cast<CComponentAnimation*>(App->mSceneManager->GetSelectedGO().GetComponent<ANIMATION>()) )
 	{
@@ -198,7 +196,7 @@ void CModuleEditor::RenderGameObjectPanel()
 		RenderBoxColliderPanel();
 	}
 
-	ImGui::Dummy( ImVec2( 0, 1 ) );
+	ImGui::Dummy( ImVec2( 0, 5 ) );
 	RenderAddComponentPanel();
 
 	ImGui::End();
@@ -208,7 +206,7 @@ void CModuleEditor::RenderScenePanel()
 {
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 
-	ImGui::Begin( "Scene", &mShowScene, window_flags );
+	ImGui::Begin( ICON_FA_OBJECT_GROUP " Scene", nullptr, window_flags );
 
 	auto scenePanelSize = ImGui::GetContentRegionAvail();
 	if( glm::vec2( scenePanelSize.x, scenePanelSize.y ) != mScenePanelSize )
@@ -228,7 +226,7 @@ void CModuleEditor::RenderGameCameraPanel()
 {
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 
-	ImGui::Begin( "Game", &mShowGameCamera, window_flags );
+	ImGui::Begin( ICON_FA_GAMEPAD " Game", nullptr, window_flags );
 
 	auto gamePanelSize = ImGui::GetContentRegionAvail();
 	if( glm::vec2( gamePanelSize.x, gamePanelSize.y ) != mGamePanelSize )
@@ -244,44 +242,27 @@ void CModuleEditor::RenderGameCameraPanel()
 
 void CModuleEditor::RenderGameControlPanel()
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse;
+	ImGui::Begin("##Toolbar", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
 
-	ImGui::PushStyleColor( ImGuiCol_WindowBg,ImVec4(0.0f, 0.3f, 0.5f, 1.f));
-	ImGui::Begin("##toolbar", nullptr, windowFlags );
+	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x );
 
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 1.f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.f));
-
-	const auto aspectRatio = mPlayIcon->GetWidth()/mPlayIcon->GetHeight();
-	auto size = aspectRatio > 1.0f ? std::min( ImGui::GetContentRegionAvail().x/aspectRatio, ImGui::GetContentRegionAvail().y ) :
-				std::min( ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y/aspectRatio );
-	size -= 5.0f;
-
-	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 0.5*ImGui::GetContentRegionAvail().x - 1.5f*size );
-
-	if( ImGui::ImageButton( (void*)(intptr_t)mPlayIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+	if( ImGui::Button( ICON_FA_PLAY "##PlayButton" ) )
 	{
 		// TO DO: trigger game
 	}
 
 	ImGui::SameLine();
-	if( ImGui::ImageButton( (void*)(intptr_t)mPauseIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+	if( ImGui::Button( ICON_FA_PAUSE "##PauseButton" ) )
 	{
 		// TO DO: pause game
 	}
 
 	ImGui::SameLine();
-	if( ImGui::ImageButton( (void*)(intptr_t)mStopIcon->GetId(), ImVec2( size*aspectRatio, size ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+	if( ImGui::Button( ICON_FA_STOP "##StopButton" ) )
 	{
 		// TO DO: stop game
 	}
 
-	ImGui::PopStyleColor(4);
-	ImGui::PopStyleVar(3);
 	ImGui::End();
 }
 
@@ -289,7 +270,7 @@ void CModuleEditor::RenderResourcePanel()
 {
 	static const std::filesystem::path RESOURCES_PATH = "../resources";
 
-	ImGui::Begin( "Resources", nullptr );
+	ImGui::Begin( ICON_FA_FOLDER " Resources", nullptr );
 
 	if( mCurrentDirectory != std::filesystem::path("../resources") )
 		if( ImGui::Button("<-"))
@@ -303,15 +284,17 @@ void CModuleEditor::RenderResourcePanel()
 		auto relativePath = std::filesystem::relative( path, RESOURCES_PATH );
 		const auto& filename = relativePath.filename().string();
 
-		const auto imageID = directory.is_directory() ? (void*)(intptr_t)mDirectoryIcon->GetId() : (void*)(intptr_t)mFileIcon->GetId();
+		ImGui::SetWindowFontScale(1.5f);
+		const auto icon = directory.is_directory() ? ICON_FA_FOLDER : ICON_FA_FILE;
 
 		ImGui::PushID(filename.c_str());
 		ImGui::BeginGroup();
 
-		if( ImGui::ImageButton( imageID, ImVec2( 90,90 ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) ) )
+		if( ImGui::Button( icon, ImVec2( 90,90 ) ) )
 			if( directory.is_directory() )
 				mCurrentDirectory /= path.filename();
 
+		ImGui::SetWindowFontScale(1);
 		if( ImGui::BeginDragDropSource() )
 		{
 			const char* itemPath = relativePath.c_str();
@@ -356,7 +339,7 @@ void CModuleEditor::RenderAddComponentPanel()
 						App->mSceneManager->GetSelectedGO().PushComponent<CComponentBoxCollider>( CComponentBoxCollider( transform->GetPosition(),
 								renderer && renderer->HasTexture() ?
 								glm::vec2( renderer->GetTextureScaleDeviation()*transform->GetScale().x*renderer->GetTextureWidth()/renderer->GetTextureHeight(),
-								renderer->GetTextureScaleDeviation()*transform->GetScale().y ) : glm::vec2( 10, 10 ),  false ) );
+								renderer->GetTextureScaleDeviation()*transform->GetScale().y ) : glm::vec2( 10, 10 ), false ) );
 						break;
 					}
 					case 2:
@@ -370,7 +353,7 @@ void CModuleEditor::RenderAddComponentPanel()
 
 void CModuleEditor::RenderRendererPanel()
 {
-	if( ImGui::CollapsingHeader( "Sprite renderer", ImGuiTreeNodeFlags_DefaultOpen ) )
+	if( ImGui::CollapsingHeader( ICON_FA_IMAGE " Sprite renderer", ImGuiTreeNodeFlags_DefaultOpen ) )
 	{
 		auto renderer = static_cast<CComponentRenderer*>(App->mSceneManager->GetSelectedGO().GetComponent<RENDERER>());
 		if( renderer->HasTexture() )
@@ -388,7 +371,7 @@ void CModuleEditor::RenderRendererPanel()
 		}
 		else
 		{
-			ImGui::Text("Drop Texture");
+			ImGui::Button( ICON_FA_ARROW_DOWN "##DropTexture", ImVec2(64.0f,64.0f) );
 		}
 
 		if (ImGui::BeginDragDropTarget())
@@ -405,7 +388,7 @@ void CModuleEditor::RenderRendererPanel()
 
 void CModuleEditor::RenderBoxColliderPanel()
 {
-	ImGui::CollapsingHeader( "Box Collider", ImGuiTreeNodeFlags_DefaultOpen );
+	ImGui::CollapsingHeader( ICON_FA_SQUARE " Box Collider", ImGuiTreeNodeFlags_DefaultOpen );
 
 	auto* boxCollider = static_cast<CComponentBoxCollider*>(App->mSceneManager->GetSelectedGO().GetComponent<BOX_COLLIDER>());
 	auto center = boxCollider->GetCenter();
@@ -420,7 +403,7 @@ void CModuleEditor::RenderBoxColliderPanel()
 
 void CModuleEditor::RenderAnimationPanel()
 {
-	ImGui::CollapsingHeader( "Animation", ImGuiTreeNodeFlags_DefaultOpen );
+	ImGui::CollapsingHeader( ICON_FA_FILM " Animation", ImGuiTreeNodeFlags_DefaultOpen );
 
 	auto* animation = static_cast<CComponentAnimation*>(App->mSceneManager->GetSelectedGO().GetComponent<ANIMATION>());
 	if( ImGui::Button( "Add state" ) )
@@ -436,6 +419,7 @@ void CModuleEditor::RenderAnimationPanel()
 		if(ImGui::ResizableInputText( "##", &name, ImGuiInputTextFlags_CallbackResize ))
 			animationState.SetName( name );
 
+		ImGui::SameLine();
 		if( ImGui::Button( "Add sprite" ) )
 			animationState.AddNotTextured();
 
@@ -452,7 +436,7 @@ void CModuleEditor::RenderAnimationPanel()
 			}
 			else
 			{
-				ImGui::Text("Drop sprite");
+				ImGui::Button( ICON_FA_ARROW_DOWN "##DropSprite", ImVec2(size,size) );
 			}
 
 			if (ImGui::BeginDragDropTarget())
