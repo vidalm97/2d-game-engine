@@ -37,17 +37,8 @@ private:
 
 	bool mResizedScenePanel = false;
 	bool mResizedGamePanel = false;
-	bool mShowScene = true;
-	bool mShowGameCamera = true;
 	glm::vec2 mScenePanelSize = glm::vec2( 0, 0 );
 	glm::vec2 mGamePanelSize = glm::vec2( 0, 0 );
-
-	CTexture* mPlayIcon = nullptr;
-	CTexture* mPauseIcon = nullptr;
-	CTexture* mStopIcon = nullptr;
-
-	CTexture* mDirectoryIcon = nullptr;
-	CTexture* mFileIcon = nullptr;
 
 	std::filesystem::path mCurrentDirectory;
 };
