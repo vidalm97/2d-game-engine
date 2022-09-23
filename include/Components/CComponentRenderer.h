@@ -13,8 +13,8 @@ class CTextureRenderer;
 class CComponentRenderer : public AComponent
 {
 public:
-	CComponentRenderer( unsigned int aGOID, const bool aActive = true );
-	CComponentRenderer( const std::string& aTexturePath, unsigned int aGOID, const bool aActive = true );
+	CComponentRenderer( unsigned int aUniqueColorID, const bool aActive = true );
+	CComponentRenderer( const std::string& aTexturePath, unsigned int aUniqueColorID, const bool aActive = true );
 	~CComponentRenderer() = default;
 
 	std::unique_ptr<AComponent> Clone() const override;

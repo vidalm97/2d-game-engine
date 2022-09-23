@@ -8,7 +8,7 @@
 class CGizmo
 {
 public:
-	CGizmo( const bool aIsActive );
+	CGizmo( const bool aIsActive, const unsigned int aUniqueColorId, const unsigned int aYUniqueColorId );
 	~CGizmo() = default;
 
 	const bool IsActive() const;
@@ -23,7 +23,6 @@ public:
 	const glm::vec2& GetYOffset() const;
 
 	void AttachAxisTextures( const std::string& aXAxisTextPath, const std::string& aYAxisTextPath );
-
 
 private:
 	bool mIsActive;

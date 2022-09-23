@@ -3,13 +3,13 @@
 #include "CComponentRenderer.h"
 #include "CComponentTransform.h"
 
-CGizmo::CGizmo( const bool aIsActive ) :
+CGizmo::CGizmo( const bool aIsActive, const unsigned int aXUniqueColorId, const unsigned int aYUniqueColorId ) :
 	mIsActive( aIsActive ),
 	mXAxis( 0, "XAxisGizmo" ),
 	mYAxis( 0, "YAxisGizmo" )
 {
-	mXAxis.PushComponent<CComponentRenderer>( CComponentRenderer(0) );
-	mYAxis.PushComponent<CComponentRenderer>( CComponentRenderer(0) );
+	mXAxis.PushComponent<CComponentRenderer>( CComponentRenderer(aXUniqueColorId) );
+	mYAxis.PushComponent<CComponentRenderer>( CComponentRenderer(aYUniqueColorId) );
 	mXOffset =  glm::vec2( 0.5f, 0.0f );
 	mYOffset =  glm::vec2( 0.0f, 0.5f );
 }

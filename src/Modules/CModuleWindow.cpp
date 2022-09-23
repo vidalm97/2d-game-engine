@@ -3,6 +3,7 @@
 #include "CApplication.h"
 #include "Modules/CModuleCamera.h"
 #include "Modules/CModuleRenderer.h"
+#include "Modules/CModuleSceneManager.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -34,12 +35,28 @@ void GetSceneCoordinates( double& aX, double& aY )
 
 void OnMousePress( GLFWwindow* aWindow, int aButton, int aAction, int aMods )
 {
-	if( aButton == GLFW_MOUSE_BUTTON_LEFT && aAction == GLFW_PRESS )
+	if( aButton == GLFW_MOUSE_BUTTON_LEFT )
 	{
-		double xpos, ypos;
-		glfwGetCursorPos( App->mWindow->mWindow, &xpos, &ypos );
-		GetSceneCoordinates( xpos, ypos );
-		App->mRenderer->CheckSelectedGO( xpos, ypos );
+		if( aAction == GLFW_PRESS && App->mSceneManager->GetDragSelectionState() == NONE )
+		{
+			double xpos, ypos;
+			glfwGetCursorPos( App->mWindow->mWindow, &xpos, &ypos );
+			GetSceneCoordinates( xpos, ypos );
+			App->mSceneManager->CheckSelection( xpos, ypos );
+		}
+		else if( aAction == GLFW_RELEASE && App->mSceneManager->GetDragSelectionState() != NONE )
+		{
+			App->mSceneManager->SetDragSelectionState( NONE );
+		}
+	}
+}
+
+static void OnMouseMove(GLFWwindow* aWindow, double aXpos, double aYpos)
+{
+	if( App->mSceneManager->GetDragSelectionState() != NONE )
+	{
+		GetSceneCoordinates( aXpos, aYpos );
+		App->mSceneManager->Drag( glm::vec2( aXpos, aYpos ) );
 	}
 }
 
@@ -63,6 +80,7 @@ bool CModuleWindow::Init()
 	glfwSetFramebufferSizeCallback( mWindow, OnResize );
 	glfwSetScrollCallback( mWindow, OnScroll );
 	glfwSetMouseButtonCallback( mWindow, OnMousePress );
+	glfwSetCursorPosCallback( mWindow, OnMouseMove );
 
 	return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 }

@@ -18,16 +18,16 @@ const glm::vec3 GenerateUniqueColor( unsigned int aUniqueId )
 	return glm::vec3( r, g, b );
 }
 
-CComponentRenderer::CComponentRenderer( unsigned int aGOID, const bool aActive ) :
+CComponentRenderer::CComponentRenderer( unsigned int aUniqueColorID, const bool aActive ) :
 	AComponent( RENDERER, aActive ),
-	mBackColor( GenerateUniqueColor( aGOID ) ),
+	mBackColor( GenerateUniqueColor( aUniqueColorID ) ),
 	mTextureRenderer( nullptr )
 {
 }
 
-CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, unsigned int aGOID, const bool aActive ) :
+CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, unsigned int aUniqueColorID, const bool aActive ) :
 	AComponent( RENDERER, aActive ),
-	mBackColor( GenerateUniqueColor( aGOID ) )
+	mBackColor( GenerateUniqueColor( aUniqueColorID ) )
 {
 	AttachTexture( aTexturePath );
 }
