@@ -45,8 +45,6 @@ public:
 	unsigned int mBackFramebuffer;
 	unsigned int mBackFramebufferTexture;
 
-	void CheckSelectedGO( int x, int y );
-
 	float mSceneWidth = 1.0f;
 	float mSceneHeight = 1.0f;
 
@@ -54,7 +52,7 @@ public:
 	float mSceneViewportYPos = 0.0f;
 	void ResizeFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
 
-	void RenderGizmo();
+	void RenderGizmo( const int& aShaderProgram, const int& aFramebuffer );
 private:
 	bool InitFramebuffer( unsigned int& aFramebuffer, unsigned int& aFramebufferTexture, const int aWidth, const int aHeight );
 	void ClearFrameBuffer( const unsigned int aFramebuffer, const glm::vec4& aColor );

@@ -34,16 +34,19 @@ const float& CComponentTransform::GetRotation() const
 void CComponentTransform::SetPosition( const glm::vec2& aPosition )
 {
 	mPosition = aPosition;
+	UpdateModelMatrix();
 }
 
 void CComponentTransform::SetScale( const glm::vec2& aScale )
 {
 	mScale = aScale;
+	UpdateModelMatrix();
 }
 
 void CComponentTransform::SetRotation( const float aRotation )
 {
 	mRotation = aRotation;
+	UpdateModelMatrix();
 }
 
 const glm::mat4& CComponentTransform::GetModelMatrix() const
