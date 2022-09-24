@@ -34,6 +34,7 @@ private:
 	void RenderRendererPanel();
 	void RenderBoxColliderPanel();
 	void RenderAnimationPanel();
+	void RenderGizmoPanel();
 
 	bool mResizedScenePanel = false;
 	bool mResizedGamePanel = false;
