@@ -472,25 +472,25 @@ void CModuleEditor::RenderGizmoPanel()
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 13.0f );
 	if( ImGui::Button( ICON_FA_HAND_ROCK "##GO free move" ) )
 	{
-		// GO Selection mode
+		App->mSceneManager->SetGizmoMode( FREE );
 	}
 
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 13.0f );
 	if( ImGui::Button( ICON_FA_HAND_POINT_RIGHT "##GO move" ) )
 	{
-		// GO axis drag mode
+		App->mSceneManager->SetGizmoMode( TRANSLATION );
 	}
 
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 13.0f );
 	if( ImGui::Button( ICON_FA_RULER_COMBINED "##GO scale" ) )
 	{
-		// GO axis scale mode
+		App->mSceneManager->SetGizmoMode( SCALE );
 	}
 
 	ImGui::SetCursorPosX( ImGui::GetCursorPosX() + 13.0f );
 	if( ImGui::Button( ICON_FA_SPINNER "##GO rotate" ) )
 	{
-		// GO rotation mode
+		App->mSceneManager->SetGizmoMode( ROTATION );
 	}
 
 	ImGui::End();

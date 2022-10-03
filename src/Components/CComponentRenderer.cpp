@@ -27,7 +27,8 @@ CComponentRenderer::CComponentRenderer( unsigned int aUniqueColorID, const bool 
 
 CComponentRenderer::CComponentRenderer( const std::string& aTexturePath, unsigned int aUniqueColorID, const bool aActive ) :
 	AComponent( RENDERER, aActive ),
-	mBackColor( GenerateUniqueColor( aUniqueColorID ) )
+	mBackColor( GenerateUniqueColor( aUniqueColorID ) ),
+	mTextureRenderer( nullptr )
 {
 	AttachTexture( aTexturePath );
 }

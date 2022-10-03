@@ -2,7 +2,6 @@
 
 #include "CApplication.h"
 #include "CComponentTransform.h"
-#include "CGizmo.h"
 #include "CTexture.h"
 #include "Modules/CModuleSceneManager.h"
 #include "Modules/CModuleEditor.h"
