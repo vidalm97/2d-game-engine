@@ -2,6 +2,11 @@
 
 #include "CApplication.h"
 #include "CComponentTransform.h"
+
+#include "CRotationGizmo.h"
+#include "CScaleGizmo.h"
+#include "CTranslationGizmo.h"
+
 #include "Modules/CModuleCamera.h"
 #include "Modules/CModuleRenderer.h"
 #include "Modules/CModuleWindow.h"
@@ -11,18 +16,25 @@
 
 CModuleSceneManager::CModuleSceneManager() :
 	mSelectedGOIndex( -1 ),
-	mNextGOId( 3 ),
-	mGizmo( true, 1, 2 ),
-	mDragSelectionState( NONE ),
-	mPreviousDragPos( 0.0f )
+	mNextGOId( 6 ),
+	mIsDragging( false ),
+	mPreviousDragPos( 0.0f ),
+	mGizmoMode(TRANSLATION)
 {
 }
 
 bool CModuleSceneManager::Init()
 {
-	mGizmo.AttachAxisTextures( "../engine_resources/icons/greenArrow.png", "../engine_resources/icons/blueArrow.png" );
-	mGizmo.SetSize( glm::vec2( 1.5f, 1.5f ) );
+	SGizmoTexture gizmoTranslateX = { "../engine_resources/icons/Gizmo/translationX.png", 1, {0.5f,0.0f} };
+	SGizmoTexture gizmoTranslateY = { "../engine_resources/icons/Gizmo/translationY.png", 2, {0.0f,0.5f} };
+	mGizmos.push_back( std::make_unique<CTranslationGizmo>( std::vector<SGizmoTexture>({ gizmoTranslateX, gizmoTranslateY }), glm::vec2( 1.5f, 1.5f ) ) );
 
+	SGizmoTexture gizmoScaleX = { "../engine_resources/icons/Gizmo/scaleX.png", 3, {0.5f,0.0f} };
+	SGizmoTexture gizmoScaleY = { "../engine_resources/icons/Gizmo/scaleY.png", 4, {0.0f,0.5f} };
+	mGizmos.push_back( std::make_unique<CScaleGizmo>( std::vector<SGizmoTexture>({ gizmoScaleX, gizmoScaleY }), glm::vec2( 1.9f, 1.9f ) ) );
+
+	SGizmoTexture gizmoRotation = { "../engine_resources/icons/Gizmo/rotation.png", 5, {0.0f,0.0f} };
+	mGizmos.push_back( std::make_unique<CRotationGizmo>( std::vector<SGizmoTexture>({ gizmoRotation }), glm::vec2( 0.5f, 0.5f ) ) );
 	return true;
 }
 
@@ -50,14 +62,25 @@ void CModuleSceneManager::AddGameObject( const CGameObject& aGameObject )
 	SetSelectedGO( mGameObjects.size()-1 );
 }
 
-const CGizmo& CModuleSceneManager::GetGizmo() const
+const std::unique_ptr<AGizmo>& CModuleSceneManager::GetGizmo() const
 {
-	return mGizmo;
+	return mGizmos[mGizmoMode];
+}
+
+void CModuleSceneManager::SetGizmoMode( const GIZMO_MODE& aGizmoMode )
+{
+	mGizmoMode = aGizmoMode;
+}
+
+const GIZMO_MODE& CModuleSceneManager::GetGizmoMode() const
+{
+	return mGizmoMode;
 }
 
 void CModuleSceneManager::UpdateGizmoPosition()
 {
-	mGizmo.SetPosition( static_cast<CComponentTransform*>(GetSelectedGO().GetComponent<TRANSFORM>())->GetPosition() );
+	for( const auto& gizmo : mGizmos )
+		gizmo->SetPosition( static_cast<CComponentTransform*>(GetSelectedGO().GetComponent<TRANSFORM>())->GetPosition() );
 }
 
 CGameObject& CModuleSceneManager::GetSelectedGO()
@@ -85,34 +108,34 @@ bool CModuleSceneManager::CheckSelection( int x, int y )
 	glm::vec3 color;
 	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &color);
 
-	bool selected = false;
-	if( HasSelectedGO() )
+	if( mGizmoMode != FREE && HasSelectedGO() )
 	{
-		if( IsRendererSelected( static_cast<CComponentRenderer*>(mGizmo.GetXAxis().GetComponent<RENDERER>()), color ) )
+		auto idx = 0;
+		for( const auto& gizmoSelectable : mGizmos[mGizmoMode]->GetSelectables() )
 		{
-			selected = true;
-			mDragSelectionState = X_GIZMO;
-		}
-		else if( IsRendererSelected( static_cast<CComponentRenderer*>(mGizmo.GetYAxis().GetComponent<RENDERER>()), color ) )
-		{
-			selected = true;
-			mDragSelectionState = Y_GIZMO;
+			if( IsRendererSelected( static_cast<CComponentRenderer*>(gizmoSelectable.first.GetComponent<RENDERER>()), color ) )
+			{
+				mIsDragging = true;
+				mGizmos[mGizmoMode]->SetCurrentSelectable( idx );
+				break;
+			}
+			idx++;
 		}
 	}
 
-	for( int i = 0; i < GetGameObjects().size() && !selected; ++i )
+	for( int i = 0; i < GetGameObjects().size() && !mIsDragging; ++i )
 	{
 		if( IsRendererSelected( static_cast<CComponentRenderer*>(GetGameObjects()[i].GetComponent<RENDERER>()), color ) )
 		{
-			selected = true;
+			mIsDragging = mGizmoMode == FREE;
 			SetSelectedGO(i);
-			mDragSelectionState = GAME_OBJECT;
+			break;
 		}
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
-	if( selected )
+	if( mIsDragging )
 	{
 		mPreviousDragPos = GetWorldPosition( glm::vec2( x,y ) );
 		return true;
@@ -133,14 +156,14 @@ const bool CModuleSceneManager::IsRendererSelected( const CComponentRenderer* aR
 	return false;
 }
 
-const E_DRAG_SELECTION_STATE& CModuleSceneManager::GetDragSelectionState() const
+const bool& CModuleSceneManager::IsDragging() const
 {
-	return mDragSelectionState;
+	return mIsDragging;
 }
 
-void CModuleSceneManager::SetDragSelectionState( const E_DRAG_SELECTION_STATE& aDragSelectionState )
+void CModuleSceneManager::SetDragging( const bool& aIsDragging )
 {
-	mDragSelectionState = aDragSelectionState;
+	mIsDragging = aIsDragging;
 }
 
 void CModuleSceneManager::Drag( const glm::vec2& aCurrentDragPos )
@@ -148,13 +171,11 @@ void CModuleSceneManager::Drag( const glm::vec2& aCurrentDragPos )
 	auto currentDragPos = GetWorldPosition( aCurrentDragPos );
 	auto deltaPos = currentDragPos-mPreviousDragPos;
 
-	if( mDragSelectionState == X_GIZMO )
-		deltaPos.y = 0;
-	else if( mDragSelectionState == Y_GIZMO )
-		deltaPos.x = 0;
-
 	auto* transform = static_cast<CComponentTransform*>(GetSelectedGO().GetComponent<TRANSFORM>());
-	transform->SetPosition( transform->GetPosition() + ( deltaPos ) );
+	if( mGizmoMode != FREE )
+		mGizmos[mGizmoMode]->UpdateTransform( transform, mPreviousDragPos, currentDragPos );
+	else
+		transform->SetPosition( transform->GetPosition() + ( deltaPos ) );
 
 	mPreviousDragPos = currentDragPos;
 	UpdateGizmoPosition();

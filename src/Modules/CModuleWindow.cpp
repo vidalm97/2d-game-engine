@@ -37,23 +37,23 @@ void OnMousePress( GLFWwindow* aWindow, int aButton, int aAction, int aMods )
 {
 	if( aButton == GLFW_MOUSE_BUTTON_LEFT )
 	{
-		if( aAction == GLFW_PRESS && App->mSceneManager->GetDragSelectionState() == NONE )
+		if( aAction == GLFW_PRESS && !App->mSceneManager->IsDragging() )
 		{
 			double xpos, ypos;
 			glfwGetCursorPos( App->mWindow->mWindow, &xpos, &ypos );
 			GetSceneCoordinates( xpos, ypos );
 			App->mSceneManager->CheckSelection( xpos, ypos );
 		}
-		else if( aAction == GLFW_RELEASE && App->mSceneManager->GetDragSelectionState() != NONE )
+		else if( aAction == GLFW_RELEASE && App->mSceneManager->IsDragging() )
 		{
-			App->mSceneManager->SetDragSelectionState( NONE );
+			App->mSceneManager->SetDragging( false );
 		}
 	}
 }
 
 static void OnMouseMove(GLFWwindow* aWindow, double aXpos, double aYpos)
 {
-	if( App->mSceneManager->GetDragSelectionState() != NONE )
+	if( App->mSceneManager->IsDragging() )
 	{
 		GetSceneCoordinates( aXpos, aYpos );
 		App->mSceneManager->Drag( glm::vec2( aXpos, aYpos ) );

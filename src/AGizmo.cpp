@@ -1,5 +1,4 @@
 #include "AGizmo.h"
-#include <iostream>
 
 #include "CComponentRenderer.h"
 
@@ -46,7 +45,7 @@ void AGizmo::AddSelectables( const std::vector<SGizmoTexture>& aGizmoTextures )
 	for( const auto& aGizmoTexture : aGizmoTextures )
 	{
 		mSelectables.push_back( { CGameObject( 0, "gizmo" ), aGizmoTexture.mOffset } );
-		mSelectables.back().first.PushComponent<CComponentRenderer>( CComponentRenderer( aGizmoTexture.mTexturePath, aGizmoTexture.mUniqueColorId ) ); 
+		mSelectables.back().first.PushComponent<CComponentRenderer>( CComponentRenderer( aGizmoTexture.mTexturePath, aGizmoTexture.mUniqueColorId ) );
 		mSelectables.back().second *= static_cast<CComponentRenderer*>(mSelectables.back().first.GetComponent<RENDERER>())->GetTextureScaleDeviation();
 	}
 }
